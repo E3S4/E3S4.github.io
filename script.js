@@ -1,4 +1,3 @@
-// Aurora Ribbon Script
 const canvas = document.getElementById('aurora');
 const ctx = canvas.getContext('2d');
 
@@ -7,8 +6,6 @@ let height = window.innerHeight;
 canvas.width = width;
 canvas.height = height;
 
-let ribbons = [];
-
 window.addEventListener('resize', () => {
   width = window.innerWidth;
   height = window.innerHeight;
@@ -16,68 +13,58 @@ window.addEventListener('resize', () => {
   canvas.height = height;
 });
 
-// Ribbon particle class
 class Ribbon {
-  constructor(x, y) {
-    this.points = [{ x, y }];
-    this.maxPoints = 30;
-    this.color = 'rgba(0,255,120,0.7)';
+  constructor(color, amplitude, speed, offsetY) {
+    this.color = color;
+    this.amplitude = amplitude; // wave height
+    this.speed = speed;         // wave speed
+    this.offsetY = offsetY;     // vertical offset
+    this.phase = Math.random() * Math.PI * 2; // starting phase
   }
 
-  update(mouseX, mouseY) {
-    // Add new point toward mouse
-    const last = this.points[this.points.length - 1];
-    const dx = (mouseX - last.x) * 0.1;
-    const dy = (mouseY - last.y) * 0.1;
-    this.points.push({ x: last.x + dx, y: last.y + dy });
-
-    // Limit points
-    if (this.points.length > this.maxPoints) {
-      this.points.shift();
-    }
-  }
-
-  draw() {
-    if (this.points.length < 2) return;
+  draw(time) {
     ctx.beginPath();
-    ctx.moveTo(this.points[0].x, this.points[0].y);
-    for (let i = 1; i < this.points.length; i++) {
-      const p = this.points[i];
-      ctx.lineTo(p.x, p.y);
+    const segments = 100;
+    for (let i = 0; i <= segments; i++) {
+      const x = (i / segments) * width;
+      const y = height/2 + this.offsetY + Math.sin((i/segments) * Math.PI * 4 + this.phase + time * this.speed) * this.amplitude;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
     }
-    ctx.strokeStyle = this.color;
-    ctx.lineWidth = 12;
-    ctx.shadowBlur = 100;
-    ctx.shadowColor = 'rgba(0,255,120,0.6)';
+
+    // Create gradient along ribbon
+    const gradient = ctx.createLinearGradient(0, 0, width, height);
+    gradient.addColorStop(0, 'rgba(0,255,120,0)');
+    gradient.addColorStop(0.5, this.color);
+    gradient.addColorStop(1, 'rgba(0,255,120,0)');
+
+    ctx.strokeStyle = gradient;
+    ctx.lineWidth = 20;
+    ctx.shadowBlur = 30;
+    ctx.shadowColor = this.color;
     ctx.stroke();
   }
 }
 
-let mouseX = width / 2;
-let mouseY = height / 2;
+// Create multiple layered ribbons
+const ribbons = [
+  new Ribbon('rgba(0,255,120,0.5)', 50, 0.002, -50),
+  new Ribbon('rgba(0,200,100,0.4)', 30, 0.0015, 30),
+  new Ribbon('rgba(0,255,150,0.3)', 40, 0.0025, 0)
+];
 
-// Track mouse
-document.addEventListener('mousemove', (e) => {
-  mouseX = e.clientX;
-  mouseY = e.clientY;
-  // Spawn new ribbon occasionally
-  if (ribbons.length < 3) {
-    ribbons.push(new Ribbon(mouseX, mouseY));
-  }
-});
+let lastTime = 0;
+function animate(time) {
+  const deltaTime = time - lastTime;
+  lastTime = time;
 
-// Animate ribbons
-function animate() {
-  ctx.fillStyle = 'rgba(0,0,0,0.4)'; 
+  // Slight fade to black for trails
+  ctx.fillStyle = 'rgba(0,0,0,0.1)';
   ctx.fillRect(0, 0, width, height);
 
-  ribbons.forEach((ribbon, i) => {
-    ribbon.update(mouseX, mouseY);
-    ribbon.draw();
-  });
+  ribbons.forEach(ribbon => ribbon.draw(time));
 
   requestAnimationFrame(animate);
 }
 
 animate();
-
