@@ -1,100 +1,89 @@
-// To ensure we use native resolution of screen
+// Get canvas elements and set them to match screen resolution
 var dpr = window.devicePixelRatio || 1;
-
-// getting canvases with native resolution
 const canvas = document.getElementById("starsCanvas");
-canvas.width = window.innerWidth*dpr;
-canvas.height = window.innerHeight*dpr;
+canvas.width = window.innerWidth * dpr;
+canvas.height = window.innerHeight * dpr;
 const ctx = canvas.getContext('2d');
-ctx.scale(dpr,dpr); // to scale every drawing operations
-const canvasMw = document.getElementById("milkyWayCanvas");
-canvasMw.width = window.innerWidth*dpr;
-canvasMw.height = window.innerHeight*dpr;
-const ctxMw = canvasMw.getContext('2d');
-ctxMw.scale(dpr,dpr); // to scale every drawing operations
+ctx.scale(dpr, dpr);
 
-// constants for the behavior of the model
-const sNumber = 600;              // number of Stars
-const sSize = .3;                 // minimum size of Star
-const sSizeR = .6;                // randomness of the size of Stars
-const sAlphaR = .5;               // randomness of alpha for stars
-const sMaxHueProportion = .6;     // max proportion of displayed base hue
-// Shooting stars parameters
+const canvasMw = document.getElementById("milkyWayCanvas");
+canvasMw.width = window.innerWidth * dpr;
+canvasMw.height = window.innerHeight * dpr;
+const ctxMw = canvasMw.getContext('2d');
+ctxMw.scale(dpr, dpr);
+
+// Star and shooting star settings
+const sNumber = 600;
+const sSize = 0.3;
+const sSizeR = 0.6;
+const sAlphaR = 0.5;
+const sMaxHueProportion = 0.6;
+
 const shootingStarDensity = 0.01;
 const shootingStarBaseXspeed = 30;
 const shootingStarBaseYspeed = 15;
 const shootingStarBaseLength = 8;
 const shootingStarBaseLifespan = 60;
-// Shooting star colors
-const shootingStarsColors = [
-  "#a1ffba", // greenish
-  "#a1d2ff", // blueish
-  "#fffaa1", // yellowish
-  "#ffa1a1"  // redish
-];
-// milky way constants
-const mwStarCount = 100000;     // amount of static stars not clustered in the milky way
-const mwRandomStarProp = .2;    // proportion of stars completely random in the milky way
-const mwClusterCount = 300;     // amount of clusters in the milky way
-const mwClusterStarCount = 1500;// amount of stars per cluster
-const mwClusterSize = 120;      // minimum size of a cluster
-const mwClusterSizeR = 80;      // randomness of the size of a cluster
-const mwClusterLayers = 10;     // amount of layers per cluster to draw
-const mwAngle = 0.6;            // to incline the milky way (0 is horizontal, tend to infinite to get vertical)
-const mwHueMin = 150;           // min hue for a cluster (150 is green)
-const mwHueMax = 300;           // max hue for a cluster (300 is pink)
-const mwWhiteProportionMin = 50;// minimum base percentage of white in cluster hue
-const mwWhiteProportionMax = 65;// maximum base percentage of white in cluster hue
+const shootingStarsColors = ["#a1ffba", "#a1d2ff", "#fffaa1", "#ffa1a1"];
 
-// array containing random numbers
-let randomArray;
+// Milky Way settings
+const mwStarCount = 100000;
+const mwRandomStarProp = 0.2;
+const mwClusterCount = 300;
+const mwClusterStarCount = 1500;
+const mwClusterSize = 120;
+const mwClusterSizeR = 80;
+const mwClusterLayers = 10;
+const mwAngle = 0.6;
+const mwHueMin = 150;
+const mwHueMax = 300;
+const mwWhiteProportionMin = 50;
+const mwWhiteProportionMax = 65;
+
+// Random and data arrays
+let randomArray, hueArray, StarsArray, ShootingStarsArray;
 const randomArrayLength = 1000;
-let randomArrayIterator = 0;
-// array containing random hues
-let hueArray;
 const hueArrayLength = 1000;
-// arrays containing all Stars
-let StarsArray;
-let ShootingStarsArray;
+let randomArrayIterator = 0;
 
-
-
-// Star creation
-class Star{
-  constructor(x,y,size){
+// Single twinkling star
+class Star {
+  constructor(x, y, size) {
     this.x = x;
     this.y = y;
     this.size = size;
     this.alpha = size / (sSize + sSizeR);
-    this.baseHue =  hueArray[Math.floor(Math.random()*hueArrayLength)];
+    this.baseHue = hueArray[Math.floor(Math.random() * hueArrayLength)];
     this.baseHueProportion = Math.random();
-    this.randomIndexa = Math.floor(Math.random()*randomArrayLength);
+    this.randomIndexa = Math.floor(Math.random() * randomArrayLength);
     this.randomIndexh = this.randomIndexa;
     this.randomValue = randomArray[this.randomIndexa];
   }
-  // method to draw each Star
-  draw(){
+
+  draw() {
     ctx.beginPath();
-    ctx.arc(this.x, this.y, this.size, 0, Math.PI*2, false);
-    let rAlpha = this.alpha + Math.min((this.randomValue - 0.5) * sAlphaR, 1);    // random alpha for the shimmering
-    let rHue = randomArray[this.randomIndexh] > this.baseHueProportion ? hueArray[this.randomIndexa] : this.baseHue; // random hue or base hue
-    this.color = "hsla("+ rHue + ",100%,85%," + rAlpha + ")";
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
+    let rAlpha = this.alpha + Math.min((this.randomValue - 0.5) * sAlphaR, 1);
+    let rHue =
+      randomArray[this.randomIndexh] > this.baseHueProportion
+        ? hueArray[this.randomIndexa]
+        : this.baseHue;
+    this.color = `hsla(${rHue},100%,85%,${rAlpha})`;
     ctx.fillStyle = this.color;
     ctx.fill();
   }
-  // method to check position of Star
-  update(){
+
+  update() {
     this.randomIndexh = this.randomIndexa;
-    this.randomIndexa = (this.randomIndexa >= 999) ? 0 : this.randomIndexa + 1 ;
+    this.randomIndexa = this.randomIndexa >= 999 ? 0 : this.randomIndexa + 1;
     this.randomValue = randomArray[this.randomIndexa];
-    // draw Star
     this.draw();
   }
 }
 
-// Shooting Star creation
-class ShootingStar{
-  constructor(x,y,speedX,speedY,color){
+// Shooting star streak
+class ShootingStar {
+  constructor(x, y, speedX, speedY, color) {
     this.x = x;
     this.y = y;
     this.speedX = speedX;
@@ -103,200 +92,223 @@ class ShootingStar{
     this.color = color;
   }
 
-  // method to know if the star will be dead on next draw
-  goingOut(){
-    return this.framesLeft <= 0 ;
-  }
-  // method to get the modifier based on the age of the shooting star
-  // when freshly born or close to die the length and brightness are reduced
-  ageModifier(){
-    let halfLife = shootingStarBaseLifespan/2.0;
-    return Math.pow(1.0-Math.abs(this.framesLeft-halfLife)/halfLife,2);
+  goingOut() {
+    return this.framesLeft <= 0;
   }
 
-  // method to draw each Star
-  draw(){
+  ageModifier() {
+    let halfLife = shootingStarBaseLifespan / 2.0;
+    return Math.pow(1.0 - Math.abs(this.framesLeft - halfLife) / halfLife, 2);
+  }
+
+  draw() {
     let am = this.ageModifier();
-    let endX = this.x - this.speedX*shootingStarBaseLength*am;
-    let endY = this.y - this.speedY*shootingStarBaseLength*am;
-    // linear gradient for the color of the shooting star
-    let gradient = ctx.createLinearGradient(this.x,this.y,endX,endY);
-    gradient.addColorStop(0, "#fff");         // brigth a the start
-    gradient.addColorStop(Math.min(am,.7), this.color);     // colored in the middle
-    gradient.addColorStop(1, "rgba(0,0,0,0)");// dim a the end
+    let endX = this.x - this.speedX * shootingStarBaseLength * am;
+    let endY = this.y - this.speedY * shootingStarBaseLength * am;
 
-    // drawing
+    let gradient = ctx.createLinearGradient(this.x, this.y, endX, endY);
+    gradient.addColorStop(0, "#fff");
+    gradient.addColorStop(Math.min(am, 0.7), this.color);
+    gradient.addColorStop(1, "rgba(0,0,0,0)");
+
     ctx.strokeStyle = gradient;
     ctx.beginPath();
-    ctx.moveTo(this.x,this.y);
-    ctx.lineTo(endX,endY);
+    ctx.moveTo(this.x, this.y);
+    ctx.lineTo(endX, endY);
     ctx.stroke();
   }
-  // method to check position of Star
-  update(){
+
+  update() {
     this.framesLeft--;
     this.x += this.speedX;
     this.y += this.speedY;
-    // draw Star
     this.draw();
   }
 }
 
-// star cluster in the milky way
-class MwStarCluster{
-  constructor(x, y, size, hue, baseWhiteProportion, brigthnessModifier){
+// Milky Way star cluster
+class MwStarCluster {
+  constructor(x, y, size, hue, baseWhiteProportion, brightnessModifier) {
     this.x = x;
     this.y = y;
     this.size = size;
     this.hue = hue;
     this.baseWhiteProportion = baseWhiteProportion;
-    this.brigthnessModifier = brigthnessModifier;
+    this.brightnessModifier = brightnessModifier;
   }
 
-  draw(){
-    let starsPerLayer = Math.floor(mwClusterStarCount/mwClusterLayers);
-    for(let layer = 1; layer < mwClusterLayers; layer++){
-      let layerRadius = this.size*layer/mwClusterLayers;
-      for(let i = 1; i < starsPerLayer; i++){
-        let posX = this.x + 2*layerRadius*(Math.random()-.5);
-        let posY = this.y + 2*Math.sqrt(Math.pow(layerRadius,2)-Math.pow(this.x-posX,2))*(Math.random()-.5);
-        let size = .05 + Math.random()*.15;
-        let alpha = .3 + Math.random()*.4;
-        let whitePercentage = this.baseWhiteProportion + 15 + 15*this.brigthnessModifier + Math.floor(Math.random()*10);
+  draw() {
+    let starsPerLayer = Math.floor(mwClusterStarCount / mwClusterLayers);
+    for (let layer = 1; layer < mwClusterLayers; layer++) {
+      let layerRadius = (this.size * layer) / mwClusterLayers;
+      for (let i = 1; i < starsPerLayer; i++) {
+        let posX = this.x + 2 * layerRadius * (Math.random() - 0.5);
+        let posY =
+          this.y +
+          2 *
+            Math.sqrt(Math.pow(layerRadius, 2) - Math.pow(this.x - posX, 2)) *
+            (Math.random() - 0.5);
+        let size = 0.05 + Math.random() * 0.15;
+        let alpha = 0.3 + Math.random() * 0.4;
+        let whitePercentage =
+          this.baseWhiteProportion +
+          15 +
+          15 * this.brightnessModifier +
+          Math.floor(Math.random() * 10);
         ctxMw.beginPath();
-        ctxMw.arc(posX, posY, size, 0, Math.PI*2, false);
-        ctxMw.fillStyle = "hsla(" + this.hue +  ",100%," + whitePercentage + "%," + alpha + ")";  // 290 deg is pinkish color
+        ctxMw.arc(posX, posY, size, 0, Math.PI * 2, false);
+        ctxMw.fillStyle = `hsla(${this.hue},100%,${whitePercentage}%,${alpha})`;
         ctxMw.fill();
       }
     }
-    // adding an extra gradient
-    let gradient = ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.size);
-    gradient.addColorStop(0, "hsla(" + this.hue +  ",100%," + this.baseWhiteProportion + "%,0.002)");         // dim center
-    gradient.addColorStop(0.25, "hsla(" + this.hue +  ",100%," + (this.baseWhiteProportion + 30) + "%,"+ (0.01+0.01*this.brigthnessModifier) + ")");         // brigth around center
-    gradient.addColorStop(0.4, "hsla(" + this.hue +  ",100%," + (this.baseWhiteProportion + 15) + "%,0.005)");     // colored in the middle
-    gradient.addColorStop(1, "rgba(0,0,0,0)");// dim a the end
+
+    // Add soft glow around cluster
+    let gradient = ctx.createRadialGradient(
+      this.x,
+      this.y,
+      0,
+      this.x,
+      this.y,
+      this.size
+    );
+    gradient.addColorStop(
+      0,
+      `hsla(${this.hue},100%,${this.baseWhiteProportion}%,0.002)`
+    );
+    gradient.addColorStop(
+      0.25,
+      `hsla(${this.hue},100%,${this.baseWhiteProportion + 30}%,${0.01 + 0.01 * this.brightnessModifier})`
+    );
+    gradient.addColorStop(
+      0.4,
+      `hsla(${this.hue},100%,${this.baseWhiteProportion + 15}%,0.005)`
+    );
+    gradient.addColorStop(1, "rgba(0,0,0,0)");
     ctxMw.beginPath();
-    ctxMw.arc(this.x,this.y,this.size, 0, Math.PI*2, false);
+    ctxMw.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
     ctxMw.fillStyle = gradient;
     ctxMw.fill();
   }
-
 }
 
-// create Star array, positions are randomized
-function init(){
-  // init random array
-  randomArray = [];
-  for(let i = 0; i < randomArrayLength ; i++){
-    randomArray[i] = Math.random();
-  }
-  // init hueArray
-  hueArray = [];
-  for(let i = 0; i < hueArrayLength ; i++){
-    // Determining a star hue, ranges from 0 to 60 then 170 to 270 (basically all but green and pink)
-    let rHue = Math.floor(Math.random()*160); // usually hue ranges from 0 to 360 but using only 0 to 160 because of next line
-    if(rHue > 60) rHue += 110; // to avoid greenish looking stars (hue from 60 to 170), feels unnatural
-    hueArray[i] = rHue;
-  }
+// Initialize all stars and arrays
+function init() {
+  randomArray = Array.from({ length: randomArrayLength }, () => Math.random());
 
-  StarsArray = [];
-  for(let i = 0; i < sNumber ; i++){
-    let size = (Math.random() * sSizeR) + sSize;
-    let x = Math.random() * ((innerWidth - size *2 ) - (size * 2)) + size * 2;
-    let y = Math.random() * ((innerHeight - size *2 ) - (size * 2)) + size * 2;
+  hueArray = Array.from({ length: hueArrayLength }, () => {
+    let rHue = Math.floor(Math.random() * 160);
+    if (rHue > 60) rHue += 110;
+    return rHue;
+  });
 
-    StarsArray.push(new Star(x, y, size));
-  }
+  StarsArray = Array.from({ length: sNumber }, () => {
+    let size = Math.random() * sSizeR + sSize;
+    let x = Math.random() * (innerWidth - size * 4) + size * 2;
+    let y = Math.random() * (innerHeight - size * 4) + size * 2;
+    return new Star(x, y, size);
+  });
 
   ShootingStarsArray = [];
-
   DrawMilkyWayCanvas();
 }
 
-// animation
-function animate(){
+// Main animation loop
+function animate() {
   requestAnimationFrame(animate);
+  ctx.clearRect(0, 0, innerWidth, innerHeight);
 
-  ctx.clearRect(0,0,innerWidth, innerHeight);
+  StarsArray.forEach((s) => s.update());
 
-  for(let i = 0; i < StarsArray.length; i++){
-    StarsArray[i].update();
+  // Randomly spawn shooting stars
+  if (randomArray[randomArrayIterator] < shootingStarDensity) {
+    let posX = Math.random() * canvas.width;
+    let posY = Math.random() * 150;
+    let speedX = (Math.random() - 0.5) * shootingStarBaseXspeed;
+    let speedY = Math.random() * shootingStarBaseYspeed;
+    let color =
+      shootingStarsColors[
+        Math.floor(Math.random() * shootingStarsColors.length)
+      ];
+    ShootingStarsArray.push(new ShootingStar(posX, posY, speedX, speedY, color));
   }
 
-  // pushing a new shooting star randomly
-  if(randomArray[randomArrayIterator] < shootingStarDensity){
-    let posX = Math.floor(Math.random()*canvas.width);  // will appear anywhere from left to right
-    let posY = Math.floor(Math.random()*150); // will appear anywhere from top to 150px from top
-    let speedX = Math.floor((Math.random()-.5)*shootingStarBaseXspeed); // will go anywhere left or right
-    let speedY = Math.floor(Math.random()*shootingStarBaseYspeed); // will go down
-    let color = shootingStarsColors[Math.floor(Math.random()*shootingStarsColors.length)];
-    ShootingStarsArray.push(new ShootingStar(posX,posY,speedX,speedY,color));
+  // Remove finished shooting stars
+  for (let i = ShootingStarsArray.length - 1; i >= 0; i--) {
+    if (ShootingStarsArray[i].goingOut()) ShootingStarsArray.splice(i, 1);
+    else ShootingStarsArray[i].update();
   }
 
-  // removing out of frame or dead shooting stars
-  let arrayIterator = ShootingStarsArray.length - 1;
-  while(arrayIterator >= 0){
-    if(ShootingStarsArray[arrayIterator].goingOut() == true){
-      ShootingStarsArray.splice(arrayIterator, 1);
-    }
-    else{
-      ShootingStarsArray[arrayIterator].update();
-    }
-    arrayIterator--;
-  }
-
-  // moving through random array
-  if(randomArrayIterator + 1 >= randomArrayLength){
-    randomArrayIterator = 0;
-  }
-  else{
-    randomArrayIterator++;
-  }
+  randomArrayIterator =
+    randomArrayIterator + 1 >= randomArrayLength ? 0 : randomArrayIterator + 1;
 }
 
-// to get x position of a star or cluster in the milky way
-function MilkyWayX(){
-  return Math.floor(Math.random()*innerWidth);
+// Milky Way coordinates
+function MilkyWayX() {
+  return Math.floor(Math.random() * innerWidth);
 }
 
-// to get y position of a star or cluster in the milky way depending on x position
-function MilkyWayYFromX(xPos, mode){
-  let offset = ((innerWidth/2)-xPos)*mwAngle;
-  if(mode == "star"){
-    return Math.floor(Math.pow(Math.random(),1.2)*innerHeight*(Math.random()-.5) + innerHeight/2 + (Math.random()-.5)*100) + offset;
-  }
-  else{
-    return Math.floor(Math.pow(Math.random(),1.5)*innerHeight*.6*(Math.random()-.5) + innerHeight/2 + (Math.random()-.5)*100) + offset;
-  }
+function MilkyWayYFromX(xPos, mode) {
+  let offset = ((innerWidth / 2) - xPos) * mwAngle;
+  if (mode === "star")
+    return (
+      Math.pow(Math.random(), 1.2) * innerHeight * (Math.random() - 0.5) +
+      innerHeight / 2 +
+      (Math.random() - 0.5) * 100 +
+      offset
+    );
+  else
+    return (
+      Math.pow(Math.random(), 1.5) * innerHeight * 0.6 * (Math.random() - 0.5) +
+      innerHeight / 2 +
+      (Math.random() - 0.5) * 100 +
+      offset
+    );
 }
 
-// To draw the milkyWay
-function DrawMilkyWayCanvas(){
-  // at first we draw unclustered stars
-  for(let i = 0; i < mwStarCount; i++){
+// Draw background Milky Way field
+function DrawMilkyWayCanvas() {
+  // Background stars
+  for (let i = 0; i < mwStarCount; i++) {
     ctxMw.beginPath();
     let xPos = MilkyWayX();
-    let yPos = Math.random() < mwRandomStarProp ? Math.floor(Math.random()*innerHeight) : MilkyWayYFromX(xPos, "star");
-    let size = Math.random()*.27;
-    ctxMw.arc(xPos, yPos, size, 0, Math.PI*2, false);
-    let alpha = .4 + Math.random()*.6;
-    ctxMw.fillStyle = "hsla(0,100%,100%," + alpha + ")";
+    let yPos =
+      Math.random() < mwRandomStarProp
+        ? Math.floor(Math.random() * innerHeight)
+        : MilkyWayYFromX(xPos, "star");
+    let size = Math.random() * 0.27;
+    ctxMw.arc(xPos, yPos, size, 0, Math.PI * 2, false);
+    let alpha = 0.4 + Math.random() * 0.6;
+    ctxMw.fillStyle = `hsla(0,100%,100%,${alpha})`;
     ctxMw.fill();
   }
-  // now we draw clusters
-  for(let i = 0; i < mwClusterCount; i++){
+
+  // Star clusters for Milky Way band
+  for (let i = 0; i < mwClusterCount; i++) {
     let xPos = MilkyWayX();
     let yPos = MilkyWayYFromX(xPos, "cluster");
-    // modifier using position of the cluster, a value of 1 is at the center, 0 is on the side
-    let distToCenter = (1-(Math.abs(xPos - innerWidth/2)/(innerWidth/2)))*(1-(Math.abs(yPos - innerHeight/2)/(innerHeight/2)));
-    let size = mwClusterSize + Math.random()*mwClusterSizeR;
-    // the hue is not the same depending on how close the cluster is to the center, half of the modifier value depends on it
-    let hue = mwHueMin + Math.floor((Math.random()*.5 + distToCenter*.5)*(mwHueMax - mwHueMin));
-    let baseWhiteProportion = mwWhiteProportionMin + Math.random()*(mwWhiteProportionMax - mwWhiteProportionMin);
-    new MwStarCluster(xPos, yPos, size, hue, baseWhiteProportion, distToCenter).draw();
+    let distToCenter =
+      (1 - Math.abs(xPos - innerWidth / 2) / (innerWidth / 2)) *
+      (1 - Math.abs(yPos - innerHeight / 2) / (innerHeight / 2));
+    let size = mwClusterSize + Math.random() * mwClusterSizeR;
+    let hue =
+      mwHueMin +
+      Math.floor(
+        (Math.random() * 0.5 + distToCenter * 0.5) * (mwHueMax - mwHueMin)
+      );
+    let baseWhiteProportion =
+      mwWhiteProportionMin +
+      Math.random() * (mwWhiteProportionMax - mwWhiteProportionMin);
+    new MwStarCluster(
+      xPos,
+      yPos,
+      size,
+      hue,
+      baseWhiteProportion,
+      distToCenter
+    ).draw();
   }
 }
 
-// now we play
+// Start animation
 init();
 animate();
