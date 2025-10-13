@@ -50,7 +50,7 @@ class Ribbon {
     }
     ctx.stroke();
     ctx.shadowBlur = 250;
-    ctx.globalAlpha = 0.3;
+    ctx.globalAlpha = 0.4;
     ctx.lineWidth = 40;
     ctx.stroke();
 
@@ -58,8 +58,8 @@ class Ribbon {
   }
 }
 
-let mouseX = width / 2;
-let mouseY = height / 2;
+let mouseX = width / 8;
+let mouseY = height / 4;
 
 // Track mouse movement
 document.addEventListener('mousemove', (e) => {
