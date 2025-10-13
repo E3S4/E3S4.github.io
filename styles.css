@@ -1,0 +1,160 @@
+/* Reset & basic styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: #000;
+  color: #fff;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* Aurora canvas */
+#aurora {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0; 
+  pointer-events: none;
+  opacity: 0.2;
+ 
+}
+
+/* Header & nav */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background: rgba(20, 20, 25, 0.8); 
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 100; 
+}
+
+.logo {
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+.logo span {
+  color: #b026ff;
+}
+
+nav a {
+  margin-left: 1.5rem;
+  text-decoration: none;
+  color: #bbb;
+  transition: color 0.3s ease;
+}
+
+nav a:hover, nav a.active {
+  color: #b026ff;
+}
+
+/* Hero Section */
+.hero {
+  height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: radial-gradient(circle at top, rgba(17,17,17,0.7), rgba(0,0,0,0.7));
+  position: relative;
+  z-index: 1; 
+}
+
+.hero-text h2 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.hero-text span {
+  color: #b026ff;
+}
+
+.hero-text p {
+  color: #aaa;
+  margin-bottom: 2rem;
+}
+
+.btn {
+  display: inline-block;
+  background: #b026ff;
+  padding: 0.8rem 1.6rem;
+  border-radius: 30px;
+  color: #fff;
+  text-decoration: none;
+  transition: 0.3s ease;
+}
+
+.btn:hover {
+  background: #d24aff;
+}
+
+/* Content sections */
+.content {
+  padding: 6rem 2rem;
+  max-width: 800px;
+  margin: auto;
+  text-align: center;
+  position: relative;
+  z-index: 1; 
+}
+
+.content h2 {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  color: #b026ff;
+}
+
+.highlight {
+  color: #d24aff;
+}
+
+.preview-box {
+  margin-top: 2rem;
+  border: 2px dashed #333;
+  padding: 2rem;
+  border-radius: 15px;
+  color: #888;
+}
+
+/* Social icons */
+.socials {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.socials a {
+  font-size: 2rem;
+  color: #b026ff;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.socials a:hover {
+  transform: scale(1.2);
+  color: #d24aff;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 2rem;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  color: #777;
+  background: #000;  
+  position: relative;
+  z-index: 1; 
+}
+
