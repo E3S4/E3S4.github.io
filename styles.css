@@ -8,7 +8,7 @@
 body {
   font-family: 'Poppins', sans-serif;
   background: #000;
-  color: #fff;
+  color: rgba(74, 39, 66, 1);
   overflow-x: hidden;
   overflow-y: auto;
 }
@@ -43,10 +43,11 @@ header {
 .logo {
   font-size: 1.8rem;
   font-weight: 600;
+  color: rgba(237, 223, 242, 1);
 }
 
 .logo span {
-  color: #b026ff;
+  color:rgba(74, 49, 154, 1);
 }
 
 nav a {
@@ -75,10 +76,11 @@ nav a:hover, nav a.active {
 .hero-text h2 {
   font-size: 3rem;
   margin-bottom: 1rem;
+  color:rgba(100, 136, 245, 0.8);
 }
 
 .hero-text span {
-  color: #b026ff;
+  color: rgba(255, 46, 169, 1);
 }
 
 .hero-text p {
