@@ -25,11 +25,9 @@ class Ribbon {
   update(mouseX, mouseY) {
     const last = this.points[this.points.length - 1];
 
-    // fast
     last.vx += (mouseX - last.x) * 0.25;
     last.vy += (mouseY - last.y) * 0.25;
 
-    // applying velocity for smoothness
     last.vx *= 0.7;
     last.vy *= 0.7;
 
@@ -39,7 +37,6 @@ class Ribbon {
     this.points.push({ x: newX, y: newY, vx: last.vx, vy: last.vy });
     if (this.points.length > this.maxPoints) this.points.shift();
 
-    // Slightly faster life decay for snappy fade
     this.life -= 0.006;
   }
 
@@ -59,10 +56,10 @@ class Ribbon {
 
     ctx.save();
     ctx.strokeStyle = gradient;
-    ctx.shadowBlur = 50 + Math.random() * 20; // good glow
+    ctx.shadowBlur = 50 + Math.random() * 20;
     ctx.shadowColor = color2;
     ctx.lineWidth = 18;
-    ctx.globalAlpha = 0.5; // slightly brighter
+    ctx.globalAlpha = 0.5;
     ctx.beginPath();
     ctx.moveTo(this.points[0].x, this.points[0].y);
 
@@ -81,14 +78,14 @@ let mouseY = height / 2;
 document.addEventListener('mousemove', (e) => {
   mouseX = e.clientX;
   mouseY = e.clientY;
-  if (ribbons.length < 10) ribbons.push(new Ribbon(mouseX, mouseY)); // more ribbons
+  if (ribbons.length < 10) ribbons.push(new Ribbon(mouseX, mouseY));
 });
 
 function animate() {
   ctx.fillStyle = 'rgba(0,0,0,0.1)';
   ctx.fillRect(0, 0, width, height);
 
-  hue = (hue + 1) % 360; // it'll make color (hue) , shift faster 
+  hue = (hue + 1) % 360;
 
   ribbons.forEach((ribbon, i) => {
     ribbon.update(mouseX, mouseY);
@@ -100,3 +97,30 @@ function animate() {
 }
 
 animate();
+
+// Add scroll animations
+const observerOptions = {
+  threshold: 0.1,
+  rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.style.opacity = '1';
+      entry.target.style.transform = 'translateY(0)';
+    }
+  });
+}, observerOptions);
+
+// Observe elements for scroll animations
+document.addEventListener('DOMContentLoaded', () => {
+  const sections = document.querySelectorAll('.content, .technologies, .projects');
+  
+  sections.forEach(section => {
+    section.style.opacity = '0';
+    section.style.transform = 'translateY(20px)';
+    section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    observer.observe(section);
+  });
+});
