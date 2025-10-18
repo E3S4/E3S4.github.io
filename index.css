@@ -21,7 +21,7 @@ body {
   height: 100%;
   z-index: 0;
   pointer-events: none;
-  opacity: 0.45;
+  opacity: 0.5;
   filter: blur(14px) saturate(200%);
   transition: opacity 0.5s ease;
 }
@@ -32,7 +32,7 @@ header {
   align-items: center;
   padding: 1rem 2.5rem;
   background: rgba(25, 25, 35, 0.55);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom: 1px solid rgba(255,255,255,0.12);
   backdrop-filter: blur(18px) saturate(180%);
   position: sticky;
   top: 0;
@@ -73,56 +73,39 @@ nav a.active {
   transform: scale(1.05);
 }
 
-.content {
-  max-width: 900px;
-  margin: 6rem auto 4rem auto;
-  padding: 2rem;
-  text-align: center;
-  background: rgba(18,18,28,0.85);
-  border-radius: 20px;
-  border: 1px solid rgba(255,255,255,0.12);
-  backdrop-filter: blur(18px);
-  box-shadow: 0 10px 40px rgba(176,38,255,0.25);
-  transition: all 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.content:hover {
-  transform: translateY(-5px) scale(1.02);
-  box-shadow: 0 18px 50px rgba(176,38,255,0.45);
-  border-color: rgba(176,38,255,0.45);
-}
-
-.content h2 {
-  font-size: 2.4rem;
-  margin-bottom: 2rem;
-  color: #b026ff;
-  text-shadow: 0 0 18px rgba(176,38,255,0.7);
-}
-
-.content p {
-  font-size: 1.15rem;
-  color: #c0c0c0;
-  line-height: 1.8;
-  margin-top: 1.5rem;
-}
-
-.socials {
+.hero-text {
+  height: 90vh;
   display: flex;
+  flex-direction: column;
   justify-content: center;
-  gap: 2rem;
-  margin-bottom: 1.5rem;
+  align-items: center;
+  text-align: center;
+  background: linear-gradient(to bottom, rgba(10,10,15,0.75), rgba(0,0,0,0.95));
+  position: relative;
+  z-index: 1;
+  padding: 0 1rem;
+  animation: fadeInUp 1.2s ease forwards;
 }
 
-.socials a {
-  font-size: 2.5rem;
-  color: #b026ff;
-  transition: all 0.15s ease;
+.hero-text h2 {
+  font-size: 3.4rem;
+  font-weight: 600;
+  color: rgba(120,150,255,0.95);
+  text-shadow: 0 0 32px rgba(120,150,255,0.7), 0 0 60px rgba(255,46,169,0.25);
+  margin-bottom: 1rem;
 }
 
-.socials a:hover {
+.hero-text span {
   color: #ff2ea9;
-  transform: scale(1.2) rotate(6deg);
-  text-shadow: 0 0 20px rgba(255,46,169,0.85);
+  text-shadow: 0 0 24px rgba(255,46,169,0.8);
+}
+
+.hero-text p {
+  color: #aaa;
+  margin-bottom: 2.4rem;
+  font-size: 1.1rem;
+  line-height: 1.8;
+  text-shadow: 0 0 6px rgba(255,255,255,0.12);
 }
 
 .btn {
@@ -157,6 +140,94 @@ nav a.active {
   0% { box-shadow: 0 0 18px rgba(176,38,255,0.55); }
   50% { box-shadow: 0 0 40px rgba(255,46,169,0.85); }
   100% { box-shadow: 0 0 30px rgba(176,38,255,0.65); }
+}
+
+.main-container {
+  display: flex;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+  gap: 3rem;
+  position: relative;
+  z-index: 1;
+}
+
+.left-panel { flex: 1; display: flex; flex-direction: column; gap: 2.5rem; }
+.right-panel { flex: 1; }
+
+.content-section {
+  background: rgba(18,18,28,0.85);
+  border-radius: 20px;
+  padding: 2.2rem;
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(255,255,255,0.12);
+  transition: all 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.content-section:hover {
+  transform: translateY(-6px) rotateZ(0.3deg) scale(1.03);
+  box-shadow: 0 18px 50px rgba(176,38,255,0.45);
+  border-color: rgba(176,38,255,0.45);
+}
+
+.content-section h2 {
+  font-size: 1.9rem;
+  margin-bottom: 1.6rem;
+  color: #b026ff;
+  text-shadow: 0 0 16px rgba(176,38,255,0.7);
+}
+
+.content-section p {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: #c0c0c0;
+}
+
+.tech-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px,1fr));
+  gap: 2rem;
+  margin-top: 1.2rem;
+}
+
+.tech-item, .project-card {
+  background: rgba(11,11,18,0.9);
+  border-radius: 28px;
+  transition: all 0.15s ease;
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  padding: 14px 10px 12px 10px;
+}
+
+.tech-item:hover, .project-card:hover {
+  transform: translateY(-7px) scale(1.05);
+  box-shadow: 0 18px 50px rgba(176,38,255,0.45);
+}
+
+.tech-item i {
+  font-size: 2.7rem;
+  margin-bottom: 1.2rem;
+  color: #b026ff;
+  transition: all 0.15s ease;
+}
+
+.tech-item:hover i {
+  transform: scale(1.25) rotate(6deg);
+  color: #ff2ea9;
+}
+
+.project-info h3 {
+  font-size: 1.6rem;
+  margin-bottom: 1.2rem;
+  color: #e8ddf5;
+  text-shadow: 0 0 10px rgba(176,38,255,0.5);
+}
+
+.project-info p {
+  color: #c0c0c0;
+  margin-bottom: 1.6rem;
+  line-height: 1.8;
 }
 
 footer {
