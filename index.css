@@ -111,7 +111,7 @@ nav a.active {
 .btn {
   display: inline-block;
   background: linear-gradient(135deg, #b026ff, #ff2ea9);
-  padding: 1rem 2rem;
+  padding: 1rem 2rem 10px 10px;
   border-radius: 35px;
   color: #fff;
   font-weight: 600;
