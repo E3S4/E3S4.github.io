@@ -111,7 +111,7 @@ nav a.active {
 .btn {
   display: inline-block;
   background: linear-gradient(135deg, #b026ff, #ff2ea9);
-  padding: 1rem 2rem;
+  padding: 1rem 2rem 10px 10px;
   border-radius: 35px;
   color: #fff;
   font-weight: 600;
@@ -119,7 +119,8 @@ nav a.active {
   letter-spacing: 0.5px;
   box-shadow: 0 0 28px rgba(176,38,255,0.7);
   transition: all 0.2s ease;
-  animation: glowPulse 2s infinite alternate;
+  animation: glowPulse 2s infinite alternative;
+  margin: 2px 2px 2px 2px;
 }
 
 .btn:hover {
@@ -243,5 +244,43 @@ footer {
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(30px); }
   to { opacity: 1; transform: translateY(0); }
+}
+.holo {
+  position: relative;
+  background: linear-gradient(120deg, #b026ff, #ff2ea9, #78aaff);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: holoShift 3s ease infinite;
+}
+
+@keyframes holoShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.holo:hover {
+  filter: brightness(1.6);
+  transform: scale(1.06);
+  text-shadow: 0 0 25px rgba(176,38,255,0.9), 0 0 55px rgba(255,46,169,1);
+  transition: 0.25s;
+}
+
+.cursor-trail {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ff2ea9, #b026ff);
+  position: fixed;
+  pointer-events: none;
+  opacity: 0.9;
+  transform: translate(-50%, -50%);
+  animation: fadeOut 1.2s forwards;
+}
+
+@keyframes fadeOut {
+  0% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.3); }
 }
 
