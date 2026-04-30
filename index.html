@@ -19,7 +19,58 @@
   padding:0;
   box-sizing:border-box;
 }
+#boot{
+  position:fixed;
+  inset:0;
+  background:#000;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  z-index:99999;
+  color:#cfe0ff;
+  font-family:-apple-system,system-ui;
+}
 
+.logo{
+  font-size:26px;
+  letter-spacing:2px;
+  margin-bottom:10px;
+  opacity:0;
+  animation:fadeIn 1s ease forwards;
+}
+
+.sub{
+  font-size:12px;
+  color:#8ea3c7;
+  margin-bottom:18px;
+}
+
+.loader{
+  width:220px;
+  height:3px;
+  background:#111;
+  border-radius:20px;
+  overflow:hidden;
+}
+
+.bar{
+  width:40%;
+  height:100%;
+  background:linear-gradient(90deg,#7aa2ff,#a0b7ff);
+  animation:move 1.6s infinite;
+}
+
+@keyframes move{
+  0%{transform:translateX(-100%)}
+  100%{transform:translateX(250%)}
+}
+
+@keyframes fadeIn{
+  from{opacity:0;transform:scale(0.95)}
+  to{opacity:1;transform:scale(1)}
+}
+  
 body{
   height:100vh;
   overflow:hidden;
@@ -150,7 +201,11 @@ input{
 }
 </style>
 </head>
-
+<div id="boot">
+  <div class="logo"> EESA OS</div>
+  <div class="sub" id="bootText">Starting system...</div>
+  <div class="loader"><div class="bar"></div></div>
+</div>
 <body>
 
 <!-- COPILOT -->
@@ -365,6 +420,35 @@ function runCopilot(){
 /* INIT */
 document.getElementById("out").innerText =
 "OS READY\nfilesystem + copilot active\n";
+
+const bootSteps = [
+  "Initializing kernel...",
+  "Mounting virtual filesystem...",
+  "Loading UI engine...",
+  "Starting Copilot service...",
+  "Launching desktop environment..."
+];
+
+let i = 0;
+
+function bootSequence(){
+  const text = document.getElementById("bootText");
+
+  const interval = setInterval(()=>{
+    text.innerText = bootSteps[i];
+    i++;
+
+    if(i >= bootSteps.length){
+      clearInterval(interval);
+
+      setTimeout(()=>{
+        document.getElementById("boot").style.display="none";
+      },600);
+    }
+  },700);
+}
+
+window.onload = bootSequence;  
 
 </script>
 
