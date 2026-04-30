@@ -36,37 +36,33 @@
   font-size:28px;
   letter-spacing:3px;
   font-weight:500;
-
   color:#cfe0ff;
 
-  /* core animation */
-  animation: panFloat 3.5s ease-in-out infinite;
-
-  /* glow vibe */
   text-shadow:
-    0 0 10px rgba(122,162,255,0.4),
-    0 0 25px rgba(122,162,255,0.2);
+    0 0 12px rgba(122,162,255,0.45),
+    0 0 28px rgba(122,162,255,0.25);
 
+  animation: zoomBreath 3.2s ease-in-out infinite;
   transform-origin:center;
 }
 
-/* ✨ MAIN FX */
-@keyframes panFloat{
+/* 🔥 smooth spatial zoom breathing */
+@keyframes zoomBreath{
   0%{
-    transform: translateX(-20px) translateY(10px) scale(0.98);
-    opacity:0.6;
+    transform: scale(0.92);
+    opacity:0.55;
     filter: blur(1px);
   }
 
   50%{
-    transform: translateX(0px) translateY(-8px) scale(1.05);
+    transform: scale(1.08);
     opacity:1;
     filter: blur(0px);
   }
 
   100%{
-    transform: translateX(20px) translateY(10px) scale(0.98);
-    opacity:0.6;
+    transform: scale(0.92);
+    opacity:0.55;
     filter: blur(1px);
   }
 }
