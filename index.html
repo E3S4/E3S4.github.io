@@ -3,13 +3,11 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>EESA | Developer OS</title>
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<title>EESA // Developer System</title>
 
 <style>
 :root{
-  --bg:#070a12;
+  --bg:#05060a;
   --panel:rgba(255,255,255,0.05);
   --text:#e5e7eb;
   --muted:#9aa4b2;
@@ -20,364 +18,231 @@
   margin:0;
   padding:0;
   box-sizing:border-box;
-  font-family:Inter,system-ui,sans-serif;
+  font-family:ui-sans-serif,system-ui;
 }
 
 body{
-  height:100vh;
-  overflow:hidden;
   background:radial-gradient(circle at top,#0f1630,#05060a);
   color:var(--text);
+  height:100vh;
+  overflow:hidden;
 }
 
-/* subtle grid */
+/* GRID BACKGROUND (subtle engineering vibe) */
 body::before{
   content:"";
   position:absolute;
   inset:0;
-  background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
   background-size:60px 60px;
   pointer-events:none;
 }
 
-/* BOOT */
-.boot{
-  position:fixed;
-  inset:0;
-  background:#000;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-family:monospace;
-  color:#00ffb3;
-  z-index:999;
-}
-
-/* DESKTOP */
-.desktop{
-  display:none;
-  height:100vh;
-  width:100%;
-}
-
-/* ICONS */
-.icons{
-  position:absolute;
-  top:30px;
-  left:20px;
-  display:flex;
-  flex-direction:column;
-  gap:16px;
-}
-
-.icon{
-  font-size:0.85rem;
-  color:var(--muted);
-  cursor:pointer;
-  transition:0.2s;
-  text-align:center;
-}
-
-.icon i{
-  font-size:1.2rem;
-  color:var(--accent);
-  display:block;
-}
-
-.icon:hover{
-  transform:translateY(-3px);
-  color:var(--text);
-}
-
-/* WINDOW */
+/* MAIN WINDOW */
 .window{
-  position:absolute;
-  width:420px;
-  min-width:280px;
-  height:300px;
+  width:700px;
+  height:420px;
   background:var(--panel);
-  backdrop-filter:blur(18px);
+  backdrop-filter:blur(20px);
   border:1px solid rgba(255,255,255,0.08);
   border-radius:14px;
-  display:none;
-  overflow:hidden;
-  box-shadow:0 40px 100px rgba(0,0,0,0.6);
-}
-
-.window.active{
-  border-color:rgba(124,134,255,0.4);
+  margin:60px auto;
+  display:flex;
+  flex-direction:column;
+  box-shadow:0 50px 120px rgba(0,0,0,0.6);
 }
 
 /* HEADER */
 .header{
-  height:36px;
+  height:40px;
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding:0 10px;
-  background:rgba(0,0,0,0.35);
+  padding:0 12px;
+  background:rgba(0,0,0,0.4);
   font-size:0.75rem;
-  cursor:grab;
   color:var(--muted);
 }
 
-.dots{display:flex;gap:6px;}
-.dot{width:10px;height:10px;border-radius:50%;}
+.dot{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  display:inline-block;
+  margin-right:6px;
+}
+
 .red{background:#ff5f57;}
 .yellow{background:#febc2e;}
 .green{background:#28c840;}
 
-.close{
-  cursor:pointer;
-  color:#ff4d4d;
-}
-
-/* CONTENT */
-.content{
-  padding:14px;
-  font-size:0.85rem;
-  line-height:1.6;
-  color:#d7dbe2;
-}
-
-/* CARDS */
-.grid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:10px;
-}
-
-.card{
-  padding:10px;
-  border-radius:10px;
-  background:rgba(255,255,255,0.04);
-  border:1px solid rgba(255,255,255,0.07);
-  transition:0.2s;
-}
-
-.card:hover{
-  transform:translateY(-4px);
-  border-color:rgba(124,134,255,0.4);
-}
-
-.card i{
-  color:var(--accent);
-  margin-bottom:6px;
-  display:block;
-}
-
 /* TERMINAL */
 .terminal{
+  flex:1;
+  padding:14px;
   font-family:monospace;
-  font-size:0.8rem;
-  white-space:pre-wrap;
-  height:100%;
+  font-size:0.85rem;
   overflow:auto;
+  white-space:pre-wrap;
   color:#c7d2fe;
 }
 
-input{
-  width:100%;
-  margin-top:8px;
-  padding:8px;
-  border-radius:8px;
-  background:rgba(0,0,0,0.5);
-  border:1px solid rgba(255,255,255,0.1);
-  color:white;
-  outline:none;
+/* INPUT */
+.input{
+  display:flex;
+  border-top:1px solid rgba(255,255,255,0.08);
 }
 
-/* resize */
-.resize{
-  position:absolute;
-  bottom:5px;
-  right:5px;
-  width:10px;
-  height:10px;
-  cursor:nwse-resize;
-  opacity:0.4;
+input{
+  flex:1;
+  padding:12px;
+  background:transparent;
+  border:none;
+  color:var(--text);
+  outline:none;
+  font-family:monospace;
+}
+
+/* cursor feel */
+input::placeholder{
+  color:var(--muted);
 }
 </style>
 </head>
 
 <body>
 
-<div class="boot" id="boot">booting system...</div>
+<div class="window">
 
-<div class="desktop" id="desktop">
-
-  <!-- ICONS -->
-  <div class="icons">
-    <div class="icon" onclick="openWin('terminal')">
-      <i class="fa-solid fa-terminal"></i>Terminal
+  <div class="header">
+    <div>
+      <span class="dot red"></span>
+      <span class="dot yellow"></span>
+      <span class="dot green"></span>
+      EESA // SYSTEM TERMINAL
     </div>
-    <div class="icon" onclick="openWin('projects')">
-      <i class="fa-solid fa-code"></i>Projects
-    </div>
-    <div class="icon" onclick="openWin('about')">
-      <i class="fa-solid fa-user"></i>About
-    </div>
+    <div>v1.0</div>
   </div>
 
-  <!-- TERMINAL -->
-  <div class="window" id="terminal" style="top:100px;left:200px;">
-    <div class="header" onmousedown="drag(event,'terminal')">
-      <div class="dots">
-        <div class="dot red"></div>
-        <div class="dot yellow"></div>
-        <div class="dot green"></div>
-      </div>
-      DEV TERMINAL
-      <span class="close" onclick="closeWin('terminal')">x</span>
-    </div>
+  <div class="terminal" id="terminal"></div>
 
-    <div class="content terminal" id="out"></div>
-    <input id="cmd" placeholder="type help..." onkeydown="if(event.key==='Enter') run()"/>
-    <div class="resize" onmousedown="resize(event,'terminal')"></div>
-  </div>
-
-  <!-- PROJECTS -->
-  <div class="window" id="projects" style="top:160px;left:260px;">
-    <div class="header" onmousedown="drag(event,'projects')">
-      <div class="dots">
-        <div class="dot red"></div>
-        <div class="dot yellow"></div>
-        <div class="dot green"></div>
-      </div>
-      PROJECTS
-      <span class="close" onclick="closeWin('projects')">x</span>
-    </div>
-
-    <div class="content">
-      <div class="grid">
-
-        <div class="card">
-          <i class="fa-solid fa-lock"></i>
-          Password Manager
-          <br><small>AES encrypted local vault</small>
-        </div>
-
-        <div class="card">
-          <i class="fa-solid fa-folder"></i>
-          File Organizer
-          <br><small>Auto sorting system</small>
-        </div>
-
-        <div class="card">
-          <i class="fa-solid fa-calculator"></i>
-          Tkinter Calculator
-          <br><small>GUI + logic separation</small>
-        </div>
-
-        <div class="card">
-          <i class="fa-solid fa-terminal"></i>
-          CLI Tools
-          <br><small>Automation scripts</small>
-        </div>
-
-      </div>
-    </div>
-
-    <div class="resize" onmousedown="resize(event,'projects')"></div>
-  </div>
-
-  <!-- ABOUT -->
-  <div class="window" id="about" style="top:240px;left:320px;">
-    <div class="header" onmousedown="drag(event,'about')">
-      <div class="dots">
-        <div class="dot red"></div>
-        <div class="dot yellow"></div>
-        <div class="dot green"></div>
-      </div>
-      ABOUT
-      <span class="close" onclick="closeWin('about')">x</span>
-    </div>
-
-    <div class="content">
-      Builder of tools, systems, and automation utilities.<br><br>
-      Focus: Python • C++ • System Design<br>
-      Style: Clean architecture, performance-first thinking<br><br>
-      Not chasing hype. Building fundamentals.
-    </div>
-
-    <div class="resize" onmousedown="resize(event,'about')"></div>
+  <div class="input">
+    <input id="cmd" placeholder="type help..." />
   </div>
 
 </div>
 
 <script>
 
-setTimeout(()=>{
-  boot.style.display="none";
-  desktop.style.display="block";
-},1200);
+/* =========================
+   STATE (FAANG STYLE)
+========================= */
 
-let z=10;
+const state = {
+  history: [],
+  user: "Eesa",
+};
 
-function openWin(id){
-  const w=document.getElementById(id);
-  w.style.display="block";
-  w.style.zIndex=++z;
+/* =========================
+   COMMAND REGISTRY (KEY UPGRADE)
+========================= */
+
+const commands = {
+  help: () => `
+Available commands:
+- help
+- about
+- skills
+- projects
+- system
+- clear
+  `,
+
+  about: () => `
+Developer: Eesa
+Focus: System design, automation, tools
+Philosophy: build simple, scalable systems
+  `,
+
+  skills: () => `
+Languages:
+- Python (primary)
+- C++
+- Java (learning)
+
+Core:
+- DSA
+- System Design thinking
+- CLI tools
+  `,
+
+  projects: () => `
+1. Password Manager (AES encryption)
+2. File Organizer (automation engine)
+3. GUI Calculator (Tkinter architecture)
+  `,
+
+  system: () => `
+System Info:
+- Kernel: EESA-OS
+- Mode: Developer Environment
+- Status: Stable
+  `,
+
+  clear: () => {
+    state.history = [];
+    render();
+    return "";
+  }
+};
+
+/* =========================
+   CORE ENGINE
+========================= */
+
+const terminal = document.getElementById("terminal");
+const input = document.getElementById("cmd");
+
+function execute(cmd){
+  cmd = cmd.toLowerCase().trim();
+
+  state.history.push(`> ${cmd}`);
+
+  if(commands[cmd]){
+    const result = commands[cmd]();
+    if(result) state.history.push(result);
+  } else {
+    state.history.push("command not found");
+  }
+
+  render();
 }
 
-function closeWin(id){
-  document.getElementById(id).style.display="none";
+/* =========================
+   RENDER ENGINE
+========================= */
+
+function render(){
+  terminal.innerText = state.history.join("\n");
+  terminal.scrollTop = terminal.scrollHeight;
 }
 
-function drag(e,id){
-  const w=document.getElementById(id);
-  let ox=e.clientX-w.offsetLeft;
-  let oy=e.clientY-w.offsetTop;
+/* =========================
+   INPUT HANDLER
+========================= */
 
-  function move(ev){
-    w.style.left=(ev.clientX-ox)+"px";
-    w.style.top=(ev.clientY-oy)+"px";
+input.addEventListener("keydown", (e)=>{
+  if(e.key === "Enter"){
+    execute(input.value);
+    input.value = "";
   }
+});
 
-  document.addEventListener("mousemove",move);
-  document.onmouseup=()=>document.removeEventListener("mousemove",move);
-}
+/* INIT */
+state.history.push("EESA SYSTEM BOOTED");
+state.history.push("type 'help' to begin");
 
-/* terminal */
-function run(){
-  const input=document.getElementById("cmd");
-  const out=document.getElementById("out");
-  let cmd=input.value.toLowerCase();
-
-  let res="";
-
-  if(cmd==="help"){
-    res="projects | about | skills";
-  } 
-  else if(cmd==="projects"){
-    res="Password Manager\nFile Organizer\nTkinter Calculator";
-  }
-  else if(cmd==="skills"){
-    res="Python | C++ | System Thinking | Git";
-  }
-  else if(cmd==="about"){
-    res="Builder focused on clean systems & tools";
-  }
-  else{
-    res="command not found";
-  }
-
-  out.innerText += "\n> " + cmd + "\n" + res + "\n";
-  input.value="";
-}
-
-/* resize */
-function resize(e,id){
-  const w=document.getElementById(id);
-
-  function move(ev){
-    w.style.width=(ev.clientX-w.offsetLeft)+"px";
-    w.style.height=(ev.clientY-w.offsetTop)+"px";
-  }
-
-  document.addEventListener("mousemove",move);
-  document.onmouseup=()=>document.removeEventListener("mousemove",move);
-}
+render();
 
 </script>
 
