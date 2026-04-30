@@ -33,13 +33,43 @@
 }
 
 .logo{
-  font-size:26px;
-  letter-spacing:2px;
-  margin-bottom:10px;
-  opacity:0;
-  animation:fadeIn 1s ease forwards;
+  font-size:28px;
+  letter-spacing:3px;
+  font-weight:500;
+
+  color:#cfe0ff;
+
+  /* core animation */
+  animation: panFloat 3.5s ease-in-out infinite;
+
+  /* glow vibe */
+  text-shadow:
+    0 0 10px rgba(122,162,255,0.4),
+    0 0 25px rgba(122,162,255,0.2);
+
+  transform-origin:center;
 }
 
+/* ✨ MAIN FX */
+@keyframes panFloat{
+  0%{
+    transform: translateX(-20px) translateY(10px) scale(0.98);
+    opacity:0.6;
+    filter: blur(1px);
+  }
+
+  50%{
+    transform: translateX(0px) translateY(-8px) scale(1.05);
+    opacity:1;
+    filter: blur(0px);
+  }
+
+  100%{
+    transform: translateX(20px) translateY(10px) scale(0.98);
+    opacity:0.6;
+    filter: blur(1px);
+  }
+}
 .sub{
   font-size:12px;
   color:#8ea3c7;
