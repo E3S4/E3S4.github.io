@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>EESA VisionOS // Polished</title>
+<title>EESA OS // Final Polished</title>
 
 <style>
 :root{
   --bg:#070a12;
   --glass:rgba(255,255,255,0.06);
   --text:#eaf0ff;
-  --muted:#a3adc2;
+  --muted:#9aa4b2;
   --accent:#7aa2ff;
 }
 
@@ -20,23 +20,21 @@
   box-sizing:border-box;
 }
 
-/* ✨ REAL MAC-STYLE TYPOGRAPHY STACK */
 body{
   height:100vh;
   overflow:hidden;
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,sans-serif;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;
   background:radial-gradient(circle at top,#1a2550,#05060a);
   color:var(--text);
 }
 
-/* subtle depth grid */
+/* GRID DEPTH */
 body::before{
   content:"";
   position:absolute;
   inset:0;
   background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
-  background-size:80px 80px;
-  pointer-events:none;
+  background-size:85px 85px;
 }
 
 /* ================= DOCK ================= */
@@ -58,7 +56,7 @@ body::before{
   font-size:12px;
   color:var(--muted);
   cursor:pointer;
-  transition:0.25s;
+  transition:0.2s;
 }
 
 .dock div:hover{
@@ -66,7 +64,7 @@ body::before{
   transform:scale(1.08);
 }
 
-/* ================= WINDOW ================= */
+/* ================= WINDOWS ================= */
 .window{
   position:absolute;
   width:520px;
@@ -78,7 +76,6 @@ body::before{
   overflow:hidden;
   display:none;
   box-shadow:0 60px 160px rgba(0,0,0,0.7);
-  transition:0.25s ease;
 }
 
 .header{
@@ -112,20 +109,18 @@ body::before{
 .yellow{background:#febc2e;}
 .green{background:#28c840;}
 
-/* ================= CONTENT ================= */
 .content{
   padding:14px;
   font-size:13px;
   line-height:1.6;
 }
 
-/* ================= TERMINAL ================= */
+/* TERMINAL */
 .terminal{
-  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-family:ui-monospace,Menlo,monospace;
   height:260px;
   overflow:auto;
   white-space:pre-wrap;
-  font-size:13px;
 }
 
 input{
@@ -140,30 +135,34 @@ input{
   font-size:13px;
 }
 
-/* ================= COPILOT PANEL ================= */
+/* COPILOT */
 .copilot{
   position:absolute;
   right:20px;
   top:20px;
-  width:280px;
+  width:260px;
   height:180px;
-  border-radius:16px;
   background:rgba(255,255,255,0.06);
   backdrop-filter:blur(30px);
+  border-radius:14px;
   border:1px solid rgba(255,255,255,0.08);
   padding:12px;
   display:none;
-}
-
-.copilot input{
-  margin-top:8px;
-  border-radius:10px;
-  border:1px solid rgba(255,255,255,0.1);
 }
 </style>
 </head>
 
 <body>
+
+<!-- COPILOT -->
+<div class="copilot" id="copilotBox">
+  🤖 Copilot
+  <div id="copilotOut" style="margin-top:8px;font-size:12px;color:var(--muted)">
+    Ask anything...
+  </div>
+  <input id="copilotInput" placeholder="learn / project / job"
+    onkeydown="if(event.key==='Enter') runCopilot()"/>
+</div>
 
 <!-- DOCK -->
 <div class="dock">
@@ -173,33 +172,19 @@ input{
   <div onclick="toggleCopilot()">Copilot</div>
 </div>
 
-<!-- COPILOT -->
-<div class="copilot" id="copilotBox">
-  🤖 Copilot
-  <div id="copilotOut" style="margin-top:8px;font-size:12px;color:var(--muted)">
-    Ask me anything...
-  </div>
-
-  <input id="copilotInput"
-    placeholder="type here..."
-    onkeydown="if(event.key==='Enter') runCopilot()"/>
-</div>
-
 <!-- TERMINAL -->
-<div class="window" id="terminal" style="top:90px;left:200px;">
+<div class="window" id="terminal" style="top:90px;left:180px;">
   <div class="header">
     <div class="controls">
       <div class="dot red"></div>
       <div class="dot yellow"></div>
       <div class="dot green"></div>
     </div>
-    <div class="title">Vision Terminal</div>
+    <div class="title">EESA Terminal</div>
   </div>
 
   <div class="content terminal" id="out"></div>
-
-  <input id="cmd"
-    placeholder="type command..."
+  <input id="cmd" placeholder="ls | cd | cat | help"
     onkeydown="if(event.key==='Enter') run()"/>
 </div>
 
@@ -217,8 +202,8 @@ input{
   <div class="content">
     Password Manager<br>
     File Organizer<br>
-    CLI Tools<br>
-    Automation Systems
+    Automation Tools<br>
+    AI Experiments
   </div>
 </div>
 
@@ -235,29 +220,26 @@ input{
 
   <div class="content">
     Eesa<br>
-    Systems engineering mindset<br><br>
+    Systems + AI builder mindset<br><br>
     Python • C++ • Architecture thinking
   </div>
 </div>
 
 <script>
 
-/* ================= CORE ENGINE ================= */
+/* ================= OS CORE ================= */
 
 let z=10;
+let cwd="/";
 
+/* WINDOW SYSTEM */
 function openWin(id){
   const w=document.getElementById(id);
   w.style.display="block";
   w.style.zIndex=++z;
-
-  if(id==="terminal"){
-    setTimeout(()=>document.getElementById("cmd").focus(),100);
-  }
 }
 
-/* ================= DRAG ================= */
-
+/* DRAG */
 let drag=null;
 
 document.addEventListener("mousedown",(e)=>{
@@ -275,12 +257,47 @@ document.addEventListener("mousedown",(e)=>{
 
 document.addEventListener("mousemove",(e)=>{
   if(!drag) return;
-
   drag.el.style.left=(e.clientX-drag.ox)+"px";
   drag.el.style.top=(e.clientY-drag.oy)+"px";
 });
 
 document.addEventListener("mouseup",()=>drag=null);
+
+/* ================= FILE SYSTEM ================= */
+
+const FS={
+  "/":{
+    type:"dir",
+    children:{
+      projects:{
+        type:"dir",
+        children:{
+          "ai.txt":{type:"file",content:"AI Copilot system"},
+          "os.txt":{type:"file",content:"Vision OS simulator"}
+        }
+      },
+      notes:{
+        type:"dir",
+        children:{
+          "idea.txt":{type:"file",content:"build macOS + AI fusion OS"}
+        }
+      }
+    }
+  }
+};
+
+function resolve(path){
+  if(path==="/") return FS["/"];
+
+  let node=FS["/"];
+  const parts=path.split("/").filter(Boolean);
+
+  for(const p of parts){
+    if(!node.children[p]) return null;
+    node=node.children[p];
+  }
+  return node;
+}
 
 /* ================= TERMINAL ================= */
 
@@ -293,42 +310,65 @@ function run(){
 
   let res="";
 
-  if(cmd==="help") res="copilot | projects | profile";
-  else if(cmd.startsWith("copilot")) res="use copilot panel";
-  else res="executed: "+cmd;
+  const [op,...args]=cmd.split(" ");
+
+  if(op==="ls"){
+    const dir=resolve(cwd);
+    res=Object.keys(dir.children||{}).join("  ");
+  }
+
+  else if(op==="pwd"){
+    res=cwd;
+  }
+
+  else if(op==="cd"){
+    let next=args[0];
+    let path=next.startsWith("/")?next:(cwd+"/"+next);
+
+    if(resolve(path)){
+      cwd=path;
+      res="entered "+cwd;
+    }else res="not found";
+  }
+
+  else if(op==="cat"){
+    let f=resolve(cwd+"/"+args[0]);
+    res=f?.content || "file not found";
+  }
+
+  else res="commands: ls cd cat pwd";
 
   out.innerText+="\n> "+cmd+"\n"+res+"\n";
   out.scrollTop=out.scrollHeight;
 }
 
-/* ================= COPILOT (REAL INPUT NOW) ================= */
+/* ================= COPILOT ================= */
 
 function toggleCopilot(){
   const box=document.getElementById("copilotBox");
-  box.style.display = box.style.display==="block"?"none":"block";
+  box.style.display=box.style.display==="block"?"none":"block";
 }
 
-/* REAL INPUT BEHAVIOR */
 function runCopilot(){
-  const input=document.getElementById("copilotInput");
-  const out=document.getElementById("copilotOut");
+  const i=document.getElementById("copilotInput");
+  const o=document.getElementById("copilotOut");
 
-  const msg=input.value.toLowerCase();
-  input.value="";
+  const m=i.value.toLowerCase();
+  i.value="";
 
-  if(msg.includes("learn"))
-    out.innerText="Python → DSA → System Design";
-  else if(msg.includes("job"))
-    out.innerText="Focus: scalable systems + clean code";
-  else if(msg.includes("project"))
-    out.innerText="Build: automation + AI tools";
+  if(m.includes("learn"))
+    o.innerText="Python → DSA → System Design";
+  else if(m.includes("job"))
+    o.innerText="Build scalable systems + clean code";
+  else if(m.includes("project"))
+    o.innerText="AI tools + automation systems";
   else
-    out.innerText="Try: learn / job / project";
+    o.innerText="Try: learn / job / project";
 }
 
 /* INIT */
 document.getElementById("out").innerText =
-"VISION OS READY\nInteractive system loaded\n";
+"OS READY\nfilesystem + copilot active\n";
 
 </script>
 
