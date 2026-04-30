@@ -1,248 +1,291 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>EESA // Developer System</title>
+<title>Windows 12 // EESA Profile</title>
 
 <style>
 :root{
-  --bg:#05060a;
-  --panel:rgba(255,255,255,0.05);
-  --text:#e5e7eb;
+  --bg:#0a0f1c;
+  --glass:rgba(255,255,255,0.06);
+  --text:#e8eefc;
   --muted:#9aa4b2;
-  --accent:#7c86ff;
+  --accent:#7aa2ff;
 }
 
 *{
   margin:0;
   padding:0;
   box-sizing:border-box;
-  font-family:ui-sans-serif,system-ui;
+  font-family:system-ui,Segoe UI;
 }
 
 body{
-  background:radial-gradient(circle at top,#0f1630,#05060a);
-  color:var(--text);
   height:100vh;
   overflow:hidden;
+  background:radial-gradient(circle at top,#121b33,#070a12);
+  color:var(--text);
 }
 
-/* GRID BACKGROUND (subtle engineering vibe) */
+/* SOFT WINDOWS 12 GRID */
 body::before{
   content:"";
   position:absolute;
   inset:0;
-  background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
-  background-size:60px 60px;
+  background-image: radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size:80px 80px;
   pointer-events:none;
 }
 
-/* MAIN WINDOW */
-.window{
-  width:700px;
-  height:420px;
-  background:var(--panel);
+/* TASKBAR */
+.taskbar{
+  position:absolute;
+  bottom:0;
+  width:100%;
+  height:52px;
+  background:rgba(10,15,28,0.8);
   backdrop-filter:blur(20px);
-  border:1px solid rgba(255,255,255,0.08);
-  border-radius:14px;
-  margin:60px auto;
   display:flex;
-  flex-direction:column;
-  box-shadow:0 50px 120px rgba(0,0,0,0.6);
+  align-items:center;
+  justify-content:center;
+  border-top:1px solid rgba(255,255,255,0.08);
 }
 
-/* HEADER */
-.header{
-  height:40px;
+/* START BUTTON */
+.start{
+  padding:8px 14px;
+  border-radius:10px;
+  background:var(--glass);
+  cursor:pointer;
+  font-size:0.85rem;
+  transition:0.2s;
+}
+
+.start:hover{
+  background:rgba(255,255,255,0.1);
+}
+
+/* START MENU */
+.menu{
+  position:absolute;
+  bottom:70px;
+  left:50%;
+  transform:translateX(-50%);
+  width:320px;
+  background:var(--glass);
+  backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:16px;
+  display:none;
+  padding:12px;
+}
+
+.item{
+  padding:10px;
+  border-radius:10px;
+  cursor:pointer;
+  color:var(--muted);
+  transition:0.2s;
+}
+
+.item:hover{
+  background:rgba(255,255,255,0.08);
+  color:var(--text);
+}
+
+/* FLOATING WINDOW */
+.window{
+  position:absolute;
+  width:520px;
+  height:340px;
+  background:var(--glass);
+  backdrop-filter:blur(25px);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:16px;
+  display:none;
+  overflow:hidden;
+  box-shadow:0 40px 120px rgba(0,0,0,0.5);
+}
+
+/* TITLE BAR */
+.titlebar{
+  height:38px;
   display:flex;
   align-items:center;
   justify-content:space-between;
   padding:0 12px;
-  background:rgba(0,0,0,0.4);
-  font-size:0.75rem;
+  font-size:0.8rem;
   color:var(--muted);
+  background:rgba(0,0,0,0.25);
 }
 
 .dot{
-  width:10px;
-  height:10px;
-  border-radius:50%;
-  display:inline-block;
-  margin-right:6px;
+  width:10px;height:10px;border-radius:50%;
+  background:var(--accent);
 }
 
-.red{background:#ff5f57;}
-.yellow{background:#febc2e;}
-.green{background:#28c840;}
+/* CONTENT */
+.content{
+  padding:14px;
+  font-size:0.85rem;
+  line-height:1.6;
+}
+
+/* GRID APPS */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+}
+
+.card{
+  padding:10px;
+  border-radius:12px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08);
+  cursor:pointer;
+  transition:0.2s;
+}
+
+.card:hover{
+  transform:translateY(-3px);
+  border-color:var(--accent);
+}
 
 /* TERMINAL */
 .terminal{
-  flex:1;
-  padding:14px;
-  font-family:monospace;
-  font-size:0.85rem;
-  overflow:auto;
+  font-family:ui-monospace,monospace;
+  font-size:0.8rem;
   white-space:pre-wrap;
-  color:#c7d2fe;
-}
-
-/* INPUT */
-.input{
-  display:flex;
-  border-top:1px solid rgba(255,255,255,0.08);
+  overflow:auto;
+  height:100%;
 }
 
 input{
-  flex:1;
-  padding:12px;
-  background:transparent;
+  width:100%;
+  padding:10px;
   border:none;
-  color:var(--text);
   outline:none;
-  font-family:monospace;
-}
-
-/* cursor feel */
-input::placeholder{
-  color:var(--muted);
+  background:rgba(0,0,0,0.3);
+  color:var(--text);
+  border-top:1px solid rgba(255,255,255,0.08);
 }
 </style>
 </head>
 
 <body>
 
-<div class="window">
+<!-- START MENU -->
+<div class="menu" id="menu">
+  <div class="item" onclick="openWin('terminal')">Terminal</div>
+  <div class="item" onclick="openWin('projects')">Projects</div>
+  <div class="item" onclick="openWin('profile')">Profile</div>
+</div>
 
-  <div class="header">
-    <div>
-      <span class="dot red"></span>
-      <span class="dot yellow"></span>
-      <span class="dot green"></span>
-      EESA // SYSTEM TERMINAL
+<!-- WINDOWS -->
+<div class="window" id="terminal" style="top:80px;left:200px;">
+  <div class="titlebar">
+    <span>Windows Terminal // EESA</span>
+    <span class="dot"></span>
+  </div>
+  <div class="content terminal" id="out"></div>
+  <input id="cmd" placeholder="type help..." onkeydown="if(event.key==='Enter') run()"/>
+</div>
+
+<div class="window" id="projects" style="top:140px;left:260px;">
+  <div class="titlebar">
+    <span>Projects</span><span class="dot"></span>
+  </div>
+
+  <div class="content">
+    <div class="grid">
+
+      <div class="card">
+        Password Manager<br>
+        <small>AES encrypted system</small>
+      </div>
+
+      <div class="card">
+        File Organizer<br>
+        <small>Automation engine</small>
+      </div>
+
+      <div class="card">
+        Tkinter Calculator<br>
+        <small>GUI architecture practice</small>
+      </div>
+
+      <div class="card">
+        CLI Tools<br>
+        <small>System utilities</small>
+      </div>
+
     </div>
-    <div>v1.0</div>
+  </div>
+</div>
+
+<div class="window" id="profile" style="top:200px;left:300px;">
+  <div class="titlebar">
+    <span>Profile</span><span class="dot"></span>
   </div>
 
-  <div class="terminal" id="terminal"></div>
-
-  <div class="input">
-    <input id="cmd" placeholder="type help..." />
+  <div class="content">
+    Builder of tools, automation systems, and clean software architecture.<br><br>
+    Focus: Python • C++ • System Design<br>
+    Style: Minimal, scalable thinking<br><br>
+    Goal: Engineering-grade software systems.
   </div>
+</div>
 
+<!-- TASKBAR -->
+<div class="taskbar">
+  <div class="start" onclick="toggleMenu()">Start</div>
 </div>
 
 <script>
 
-/* =========================
-   STATE (FAANG STYLE)
-========================= */
+/* STATE */
+let z=10;
 
-const state = {
-  history: [],
-  user: "Eesa",
-};
+/* MENU */
+function toggleMenu(){
+  const m=document.getElementById("menu");
+  m.style.display = m.style.display==="block"?"none":"block";
+}
 
-/* =========================
-   COMMAND REGISTRY (KEY UPGRADE)
-========================= */
+/* WINDOWS */
+function openWin(id){
+  const w=document.getElementById(id);
+  w.style.display="block";
+  w.style.zIndex=++z;
+}
 
+/* TERMINAL ENGINE */
 const commands = {
-  help: () => `
-Available commands:
-- help
-- about
-- skills
-- projects
-- system
-- clear
-  `,
-
-  about: () => `
-Developer: Eesa
-Focus: System design, automation, tools
-Philosophy: build simple, scalable systems
-  `,
-
-  skills: () => `
-Languages:
-- Python (primary)
-- C++
-- Java (learning)
-
-Core:
-- DSA
-- System Design thinking
-- CLI tools
-  `,
-
-  projects: () => `
-1. Password Manager (AES encryption)
-2. File Organizer (automation engine)
-3. GUI Calculator (Tkinter architecture)
-  `,
-
-  system: () => `
-System Info:
-- Kernel: EESA-OS
-- Mode: Developer Environment
-- Status: Stable
-  `,
-
-  clear: () => {
-    state.history = [];
-    render();
-    return "";
-  }
+  help: "projects | profile | skills | system",
+  projects: "Password Manager | File Organizer | CLI Tools",
+  profile: "Eesa | Systems Engineer mindset",
+  skills: "Python | C++ | System Design",
+  system: "Windows 12 Dev Shell (simulated)"
 };
 
-/* =========================
-   CORE ENGINE
-========================= */
+function run(){
+  const input=document.getElementById("cmd");
+  const out=document.getElementById("out");
 
-const terminal = document.getElementById("terminal");
-const input = document.getElementById("cmd");
+  let cmd=input.value.toLowerCase().trim();
+  input.value="";
 
-function execute(cmd){
-  cmd = cmd.toLowerCase().trim();
+  let res = commands[cmd] || "command not found";
 
-  state.history.push(`> ${cmd}`);
-
-  if(commands[cmd]){
-    const result = commands[cmd]();
-    if(result) state.history.push(result);
-  } else {
-    state.history.push("command not found");
-  }
-
-  render();
+  out.innerText += "\n> " + cmd + "\n" + res + "\n";
+  out.scrollTop=out.scrollHeight;
 }
 
-/* =========================
-   RENDER ENGINE
-========================= */
-
-function render(){
-  terminal.innerText = state.history.join("\n");
-  terminal.scrollTop = terminal.scrollHeight;
-}
-
-/* =========================
-   INPUT HANDLER
-========================= */
-
-input.addEventListener("keydown", (e)=>{
-  if(e.key === "Enter"){
-    execute(input.value);
-    input.value = "";
-  }
-});
-
-/* INIT */
-state.history.push("EESA SYSTEM BOOTED");
-state.history.push("type 'help' to begin");
-
-render();
+/* boot-like init */
+document.getElementById("out").innerText =
+"Windows Terminal initialized\nType help to begin\n";
 
 </script>
 
