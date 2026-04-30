@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>EESA OS // macOS Dev Clone</title>
+<title>EESA OS // FAANG Mac Engine</title>
 
 <style>
 :root{
-  --bg:#0b1020;
+  --bg:#0a0f1c;
   --glass:rgba(255,255,255,0.06);
   --text:#e8eefc;
   --muted:#9aa4b2;
@@ -24,30 +24,29 @@
 body{
   height:100vh;
   overflow:hidden;
-  background:radial-gradient(circle at top,#1a2550,#070a12);
+  background:radial-gradient(circle at top,#141c3a,#070a12);
   color:var(--text);
 }
 
-/* subtle macOS-like grid */
+/* GRID BACKGROUND */
 body::before{
   content:"";
   position:absolute;
   inset:0;
-  background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
   background-size:80px 80px;
-  pointer-events:none;
 }
 
-/* DOCK */
+/* ===================== DOCK ===================== */
 .dock{
   position:absolute;
-  bottom:20px;
+  bottom:18px;
   left:50%;
   transform:translateX(-50%);
   display:flex;
   gap:14px;
   padding:10px 16px;
-  border-radius:18px;
+  border-radius:16px;
   background:rgba(255,255,255,0.06);
   backdrop-filter:blur(20px);
   border:1px solid rgba(255,255,255,0.1);
@@ -58,14 +57,15 @@ body::before{
   font-size:0.75rem;
   color:var(--muted);
   text-align:center;
+  transition:0.2s;
 }
 
 .dock-item:hover{
   color:var(--text);
-  transform:scale(1.05);
+  transform:scale(1.1);
 }
 
-/* WINDOW SYSTEM */
+/* ===================== WINDOW ===================== */
 .window{
   position:absolute;
   width:520px;
@@ -74,12 +74,12 @@ body::before{
   backdrop-filter:blur(25px);
   border:1px solid rgba(255,255,255,0.08);
   border-radius:14px;
-  overflow:hidden;
   display:none;
+  overflow:hidden;
   box-shadow:0 50px 140px rgba(0,0,0,0.6);
 }
 
-/* HEADER (macOS style) */
+/* HEADER */
 .header{
   height:38px;
   display:flex;
@@ -141,7 +141,7 @@ input{
 
 <body>
 
-<!-- DOCK (macOS style launcher) -->
+<!-- DOCK -->
 <div class="dock">
   <div class="dock-item" onclick="openWin('terminal')">Terminal</div>
   <div class="dock-item" onclick="openWin('apps')">Projects</div>
@@ -149,7 +149,7 @@ input{
 </div>
 
 <!-- TERMINAL -->
-<div class="window" id="terminal" style="top:100px;left:200px;">
+<div class="window" id="terminal" style="top:90px;left:180px;">
   <div class="header">
     <div class="controls">
       <div class="dot red"></div>
@@ -163,8 +163,8 @@ input{
   <input id="cmd" placeholder="help | copilot ..." onkeydown="if(event.key==='Enter') run()"/>
 </div>
 
-<!-- APPS -->
-<div class="window" id="apps" style="top:140px;left:260px;">
+<!-- PROJECTS -->
+<div class="window" id="apps" style="top:150px;left:260px;">
   <div class="header">
     <div class="controls">
       <div class="dot red"></div>
@@ -175,15 +175,15 @@ input{
   </div>
 
   <div class="content">
-    • Password Manager → AES encrypted vault<br>
-    • File Organizer → automation system<br>
-    • Tkinter Calculator → GUI architecture<br>
-    • CLI Tools → system utilities
+    🔐 Password Manager → AES encrypted vault<br>
+    📁 File Organizer → automation engine<br>
+    🧮 Tkinter Calculator → GUI system<br>
+    ⚙️ CLI Tools → automation scripts
   </div>
 </div>
 
 <!-- PROFILE -->
-<div class="window" id="profile" style="top:220px;left:320px;">
+<div class="window" id="profile" style="top:220px;left:300px;">
   <div class="header">
     <div class="controls">
       <div class="dot red"></div>
@@ -194,77 +194,88 @@ input{
   </div>
 
   <div class="content">
-    Builder of tools, systems, and automation software.<br><br>
+    Builder of systems, tools, and automation software.<br><br>
     Python • C++ • System Design<br>
-    Focus: scalable engineering thinking
+    Focus: scalable engineering mindset<br><br>
+    Goal: build real-world software systems.
   </div>
 </div>
 
 <script>
 
 /* =========================
-   WINDOW MANAGER (REAL MACOS BEHAVIOR)
+   STATE (FAANG STYLE CORE)
 ========================= */
 
-let z = 10;
-let activeWin = null;
-let offsetX = 0;
-let offsetY = 0;
+const state = {
+  z: 10,
+  active: null
+};
+
+/* =========================
+   WINDOW MANAGER
+========================= */
 
 function openWin(id){
   const w = document.getElementById(id);
   w.style.display = "block";
-  w.style.zIndex = ++z;
+  w.style.zIndex = ++state.z;
 
   if(id === "terminal"){
     setTimeout(()=>document.getElementById("cmd").focus(),100);
   }
 }
 
-/* DRAG SYSTEM (macOS style) */
-document.addEventListener("mousedown", (e)=>{
+/* =========================
+   DRAG SYSTEM (GLOBAL)
+========================= */
+
+let drag = null;
+
+document.addEventListener("mousedown",(e)=>{
   const header = e.target.closest(".header");
   if(!header) return;
 
-  activeWin = header.parentElement;
+  const win = header.parentElement;
 
-  offsetX = e.clientX - activeWin.offsetLeft;
-  offsetY = e.clientY - activeWin.offsetTop;
+  drag = {
+    el:win,
+    ox:e.clientX - win.offsetLeft,
+    oy:e.clientY - win.offsetTop
+  };
 
-  activeWin.style.zIndex = ++z;
+  win.style.zIndex = ++state.z;
 });
 
-document.addEventListener("mousemove", (e)=>{
-  if(!activeWin) return;
+document.addEventListener("mousemove",(e)=>{
+  if(!drag) return;
 
-  activeWin.style.left = (e.clientX - offsetX) + "px";
-  activeWin.style.top = (e.clientY - offsetY) + "px";
+  drag.el.style.left = (e.clientX - drag.ox) + "px";
+  drag.el.style.top = (e.clientY - drag.oy) + "px";
 });
 
-document.addEventListener("mouseup", ()=>{
-  activeWin = null;
-});
+document.addEventListener("mouseup",()=>drag=null);
 
 /* =========================
-   COPILOT ENGINE
+   COPILOT ENGINE (INTENT AI)
 ========================= */
 
-function copilot(msg){
-  msg = msg.toLowerCase();
+function copilot(input){
+  input = input.toLowerCase();
 
-  if(msg.includes("learn")){
-    return "Focus: Python → System Design → real projects";
+  if(input.includes("learn")){
+    return "Roadmap: Python → DSA → System Design → Projects";
   }
 
-  if(msg.includes("project")){
+  if(input.includes("project")){
     return "Build: AI organizer, GitHub analyzer, automation tools";
   }
 
-  if(msg.includes("job")){
-    return "Signal: clean code, scalable systems, real apps";
+  if(input.includes("job") || input.includes("faang")){
+    return "Signals: clean code, scalable systems, real apps";
   }
 
-  return "Try: learn / project / job";
+  return "Try: learn / project / job / faang";
 }
 
 /* =========================
@@ -274,7 +285,7 @@ function copilot(msg){
 const commands = {
   help: "projects | profile | copilot <msg>",
   projects: "Password Manager | File Organizer | CLI Tools",
-  profile: "Eesa | systems builder mindset",
+  profile: "Eesa | systems engineering mindset"
 };
 
 function run(){
@@ -300,9 +311,9 @@ function run(){
   out.scrollTop = out.scrollHeight;
 }
 
-/* BOOT */
+/* INIT */
 document.getElementById("out").innerText =
-"EESA macOS DEV ENV LOADED\nType help or copilot\n";
+"EESA MACOS DEV SYSTEM READY\nType help or copilot\n";
 
 </script>
 
