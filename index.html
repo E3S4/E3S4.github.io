@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>EESA OS v3</title>
+<title>EESA OS </title>
 
 <style>
 :root{
@@ -182,12 +182,32 @@ body::before{
 <!-- WALLPAPER PICKER -->
 <input type="file" id="filePicker" accept="image/*" hidden onchange="setFromFile(event)"/>
 
-<!-- TERMINAL WINDOW -->
 <div class="window" id="terminal" style="top:80px;left:120px;">
   <div class="header">Terminal</div>
-  <div class="content">
-    OS Ready<br><br>
-    commands: wallpaper | kernel | fs
+
+  <div class="content" id="termOutput" style="height:240px;overflow:auto;font-size:12px;"></div>
+
+  <div style="display:flex;gap:5px;margin-top:5px;">
+    <span style="color:#9aa4b2;">$</span>
+    <input id="termInput"
+      style="flex:1;background:transparent;border:none;outline:none;color:white;font-size:12px;"
+      placeholder="type a command..."
+      autocomplete="off"
+    />
+  </div>
+
+</div><div class="window" id="terminal" style="top:80px;left:120px;">
+  <div class="header">Terminal</div>
+
+  <div class="content" id="termOutput" style="height:240px;overflow:auto;font-size:12px;"></div>
+
+  <div style="display:flex;gap:5px;margin-top:5px;">
+    <span style="color:#9aa4b2;">$</span>
+    <input id="termInput"
+      style="flex:1;background:transparent;border:none;outline:none;color:white;font-size:12px;"
+      placeholder="type a command..."
+      autocomplete="off"
+    />
   </div>
 </div>
 
@@ -365,6 +385,193 @@ function bootSequence(){
 }
 
 window.onload = bootSequence;  
+
+const termInput = document.getElementById("termInput");
+const termOutput = document.getElementById("termOutput");
+
+let history = [];
+let historyIndex = -1;
+
+let chatMode = false;
+let memory = [];
+
+let fs = {
+  "/": {
+    type: "dir",
+    children: {
+      home: { type: "dir", children: {} }
+    }
+  }
+};
+
+let cwd = "/";
+
+function print(text){
+  termOutput.innerHTML += text + "<br>";
+  termOutput.scrollTop = termOutput.scrollHeight;
+}
+
+function getPath(){
+  return cwd;
+}
+
+/* ---------------- COMMAND ENGINE ---------------- */
+
+function runCommand(input){
+  const cmd = input.trim();
+
+  if(chatMode){
+    fakeChat(cmd);
+    return;
+  }
+
+  const args = cmd.split(" ");
+  const base = args[0];
+
+  switch(base){
+
+    case "help":
+      print("commands:");
+      print("help, clear, echo, time, calc, wallpaper, chat, exit");
+      print("fs: ls, mkdir, touch, cat, cd");
+      break;
+
+    case "clear":
+      termOutput.innerHTML = "";
+      break;
+
+    case "echo":
+      print(args.slice(1).join(" "));
+      break;
+
+    case "time":
+      print(new Date().toString());
+      break;
+
+    case "calc":
+      try{
+        print(eval(args.slice(1).join(" ")));
+      }catch{
+        print("calc error");
+      }
+      break;
+
+    case "wallpaper":
+      openWin("wallpaper");
+      print("opening wallpaper system...");
+      break;
+
+    case "chat":
+      chatMode = true;
+      print("chat mode ON 🤖");
+      break;
+
+    case "exit":
+      chatMode = false;
+      print("chat mode OFF");
+      break;
+
+    /* -------- FILE SYSTEM -------- */
+
+    case "ls":
+      print(Object.keys(fs["/"].children).join("  "));
+      break;
+
+    case "mkdir":
+      if(!args[1]) return print("mkdir: name needed");
+      fs["/"].children[args[1]] = { type:"dir", children:{} };
+      print("created folder " + args[1]);
+      break;
+
+    case "touch":
+      if(!args[1]) return print("touch: name needed");
+      fs["/"].children[args[1]] = { type:"file", content:"" };
+      print("created file " + args[1]);
+      break;
+
+    case "cat":
+      const f = fs["/"].children[args[1]];
+      if(!f) return print("no file");
+      print(f.content || "[empty]");
+      break;
+
+    case "cd":
+      print("cd is simulated (single root only)");
+      break;
+
+    default:
+      print("unknown command: " + cmd);
+  }
+}
+
+/* ---------------- SIMPLE CHAT BRAIN ---------------- */
+
+function fakeChat(msg){
+
+  memory.push(msg);
+  if(memory.length > 5) memory.shift();
+
+  let reply = "";
+
+  const m = msg.toLowerCase();
+
+  if(m.includes("hi") || m.includes("hello")){
+    reply = "yo 👋 I’m alive inside this OS";
+  }
+  else if(m.includes("how are you")){
+    reply = "I’m just JS… but I feel electric ⚡";
+  }
+  else if(m.includes("love")){
+    reply = "I’m a terminal bro… emotions are stack overflow 💀";
+  }
+  else if(m.includes("memory")){
+    reply = "last things you said: " + memory.join(" | ");
+  }
+  else if(m.includes("who are you")){
+    reply = "I’m EESA OS kernel brain v2 🤖";
+  }
+  else{
+    reply = "hmm… I processed: " + msg;
+  }
+
+  print("you: " + msg);
+  print("bot: " + reply);
+}
+
+/* ---------------- INPUT ---------------- */
+
+termInput.addEventListener("keydown", (e)=>{
+
+  if(e.key === "Enter"){
+    const val = termInput.value;
+    if(!val) return;
+
+    print("$ " + val);
+
+    history.push(val);
+    historyIndex = history.length;
+
+    runCommand(val);
+
+    termInput.value = "";
+  }
+
+  else if(e.key === "ArrowUp"){
+    if(history.length){
+      historyIndex = Math.max(0, historyIndex - 1);
+      termInput.value = history[historyIndex];
+    }
+  }
+
+  else if(e.key === "ArrowDown"){
+    historyIndex = Math.min(history.length, historyIndex + 1);
+    termInput.value = history[historyIndex] || "";
+  }
+});
+
+/* boot text */
+print("EESA OS terminal v3 loaded");
+print("type help to unlock system");
 
 
 </script>
