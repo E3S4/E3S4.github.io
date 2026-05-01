@@ -42,11 +42,10 @@
     0 0 12px rgba(122,162,255,0.45),
     0 0 28px rgba(122,162,255,0.25);
 
-  animation: zoomBreath 3.2s ease-in-out infinite;
+  animation: zoomBreath 3.2s ease-in-out ;
   transform-origin:center;
 }
 
-/* 🔥 smooth spatial zoom breathing */
 @keyframes zoomBreath{
   0%{
     transform: scale(0.92);
@@ -54,18 +53,15 @@
     filter: blur(1px);
   }
 
-  50%{
-    transform: scale(1.08);
+ 100%{
+    transform: scale(1);
     opacity:1;
     filter: blur(0px);
   }
 
-  100%{
-    transform: scale(0.92);
-    opacity:0.55;
-    filter: blur(1px);
-  }
+ 
 }
+
 .sub{
   font-size:12px;
   color:#8ea3c7;
@@ -234,6 +230,9 @@ input{
 </div>
 <body>
 
+  <!-- WALLPAPER DIV -->
+  <div class="wallpaper"></div>
+Z
 <!-- COPILOT -->
 <div class="copilot" id="copilotBox">
   Copilot
@@ -307,6 +306,12 @@ input{
 
 <script>
 
+/* Wallpaper function */
+function setWallpaper(url) {
+  document.body.style.backgroundImage = `url(${url})`;
+  document.body.style.backgroundSize = 'cover';
+  document.body.style.backgroundPosition = 'center';
+}
 
 let z=10;
 let cwd="/";
