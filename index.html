@@ -3,327 +3,312 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>EESA OS</title>
+<title>EESA OS v3</title>
 
 <style>
 :root{
-  --bg:#070a12;
   --glass:rgba(255,255,255,0.06);
   --text:#eaf0ff;
   --muted:#9aa4b2;
-  --accent:#7aa2ff;
 }
 
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-}
-#boot{
-  position:fixed;
-  inset:0;
-  background:#000;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  z-index:99999;
-  color:#cfe0ff;
-  font-family:-apple-system,system-ui;
-}
-
+*{margin:0;padding:0;box-sizing:border-box;}
+#boot{ 
+  position:fixed; 
+  inset:0; 
+  background:#000; 
+  display:flex; 
+  flex-direction:column; 
+  align-items:center; 
+  justify-content:center; 
+  z-index:99999; 
+  color:#cfe0ff; 
+  font-family:-apple-system,system-ui; 
+} 
 .logo{
-  font-size:28px;
-  letter-spacing:3px;
-  font-weight:500;
-  color:#cfe0ff;
+   font-size:28px; 
+   letter-spacing:3px; 
+   font-weight:500; 
+   color:#cfe0ff; 
+   text-shadow: 0 0 12px rgba(122,162,255,0.45), 0 0 28px rgba(122,162,255,0.25); 
+   animation: zoomBreath 3.2s ease-in-out ; 
+   transform-origin:center;
+   } 
+   @keyframes zoomBreath{
+     0%{
+       transform: scale(0.92); 
+       opacity:0.55; 
+       filter: blur(1px); 
+      }
+       100%{
+         transform: scale(1); 
+         opacity:1; filter: 
+         blur(0px); 
+        } 
+      } 
+      .sub{ 
+        font-size:12px; 
+        color:#8ea3c7; 
+        margin-bottom:18px; 
+      } 
+      .loader{
+         width:220px;
+          height:3px;
+           background:#111;
+            border-radius:20px; 
+            overflow:hidden; } 
+            .bar{
+               width:40%;
+                height:100%;
+                 background:linear-gradient(90deg,#7aa2ff,#a0b7ff); 
+                 animation:move 1.6s infinite; } 
+                 @keyframes move{ 
+                  0%{transform:translateX(-100%)
+                  } 
+                  100%{
+                    transform:translateX(250%)
+                  } 
+                } @keyframes fadeIn{ 
+                  from{opacity:0;transform:scale(0.95)
+                  } to
+                  {opacity:1;transform:scale(1)}
+                 }
 
-  text-shadow:
-    0 0 12px rgba(122,162,255,0.45),
-    0 0 28px rgba(122,162,255,0.25);
-
-  animation: zoomBreath 3.2s ease-in-out ;
-  transform-origin:center;
-}
-
-@keyframes zoomBreath{
-  0%{
-    transform: scale(0.92);
-    opacity:0.55;
-    filter: blur(1px);
-  }
-
- 100%{
-    transform: scale(1);
-    opacity:1;
-    filter: blur(0px);
-  }
-
- 
-}
-
-.sub{
-  font-size:12px;
-  color:#8ea3c7;
-  margin-bottom:18px;
-}
-
-.loader{
-  width:220px;
-  height:3px;
-  background:#111;
-  border-radius:20px;
-  overflow:hidden;
-}
-
-.bar{
-  width:40%;
-  height:100%;
-  background:linear-gradient(90deg,#7aa2ff,#a0b7ff);
-  animation:move 1.6s infinite;
-}
-
-@keyframes move{
-  0%{transform:translateX(-100%)}
-  100%{transform:translateX(250%)}
-}
-
-@keyframes fadeIn{
-  from{opacity:0;transform:scale(0.95)}
-  to{opacity:1;transform:scale(1)}
-}
-  
 body{
   height:100vh;
   overflow:hidden;
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;
-  background:radial-gradient(circle at top,#1a2550,#05060a);
+  font-family:-apple-system,system-ui;
   color:var(--text);
+  background:radial-gradient(circle at top,#1a2550,#05060a);
+  position:relative;
 }
 
+/* wallpaper layer */
+#wallpaperLayer{
+  position:fixed;
+  inset:0;
+  background-size:cover;
+  background-position:center;
+  z-index:0;
+}
 
+/* grid overlay */
 body::before{
   content:"";
   position:absolute;
   inset:0;
   background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
   background-size:85px 85px;
+  pointer-events:none;
+  z-index:1;
 }
 
-.dock{
-  position:absolute;
-  bottom:18px;
-  left:50%;
-  transform:translateX(-50%);
-  display:flex;
-  gap:14px;
-  padding:10px 16px;
-  border-radius:18px;
-  background:rgba(255,255,255,0.06);
-  backdrop-filter:blur(30px);
-  border:1px solid rgba(255,255,255,0.08);
-}
-
-.dock div{
-  font-size:12px;
-  color:var(--muted);
-  cursor:pointer;
-  transition:0.2s;
-}
-
-.dock div:hover{
-  color:white;
-  transform:scale(1.08);
-}
-
-
+/* windows */
 .window{
   position:absolute;
-  width:520px;
-  height:340px;
+  width:500px;
+  height:320px;
   background:var(--glass);
-  backdrop-filter:blur(30px);
+  backdrop-filter:blur(25px);
   border:1px solid rgba(255,255,255,0.08);
-  border-radius:16px;
-  overflow:hidden;
+  border-radius:14px;
   display:none;
-  box-shadow:0 60px 160px rgba(0,0,0,0.7);
+  z-index:5;
 }
 
 .header{
   height:38px;
   display:flex;
-  justify-content:space-between;
   align-items:center;
-  padding:0 12px;
-  background:rgba(0,0,0,0.25);
+  justify-content:space-between;
+  padding:0 10px;
+  background:rgba(0,0,0,0.3);
   cursor:grab;
-  user-select:none;
 }
 
-.title{
-  font-size:12px;
-  color:var(--muted);
-}
+.content{padding:12px;font-size:13px;}
 
-.controls{
-  display:flex;
-  gap:6px;
-}
-
-.dot{
-  width:10px;
-  height:10px;
-  border-radius:50%;
-}
-
-.red{background:#ff5f57;}
-.yellow{background:#febc2e;}
-.green{background:#28c840;}
-
-.content{
-  padding:14px;
-  font-size:13px;
-  line-height:1.6;
-}
-
-/* TERMINAL */
-.terminal{
-  font-family:ui-monospace,Menlo,monospace;
-  height:260px;
-  overflow:auto;
-  white-space:pre-wrap;
-}
-
-input{
-  width:100%;
-  padding:10px;
-  border:none;
-  outline:none;
-  background:rgba(0,0,0,0.4);
-  color:white;
-  border-top:1px solid rgba(255,255,255,0.08);
-  font-family:ui-monospace;
-  font-size:13px;
-}
-
-/* COPILOT */
-.copilot{
+/* dock */
+.dock{
   position:absolute;
-  right:20px;
-  top:20px;
-  width:260px;
-  height:180px;
+  bottom:16px;
+  left:50%;
+  transform:translateX(-50%);
+  display:flex;
+  gap:12px;
+  padding:10px 14px;
+  border-radius:16px;
   background:rgba(255,255,255,0.06);
-  backdrop-filter:blur(30px);
-  border-radius:14px;
-  border:1px solid rgba(255,255,255,0.08);
-  padding:12px;
-  display:none;
+  backdrop-filter:blur(25px);
+  z-index:10;
+}
+
+.dock div{cursor:pointer;color:var(--muted);}
+
+/* kernel monitor */
+#kernel{
+  position:absolute;
+  top:10px;
+  right:10px;
+  width:220px;
+  background:rgba(0,0,0,0.4);
+  padding:10px;
+  font-size:11px;
+  border-radius:10px;
+  z-index:20;
 }
 </style>
 </head>
-<div id="boot">
+<div id="boot"> 
   <div class="logo">✦ EESA OS</div>
-  <div class="sub" id="bootText">Starting system...</div>
-  <div class="loader"><div class="bar"></div></div>
+   <div class="sub" id="bootText">Starting system...</div> 
+   <div class="loader">
+    <div class="bar">
+
+    </div>
+  </div> 
 </div>
 <body>
 
-  <!-- WALLPAPER DIV -->
-  <div class="wallpaper"></div>
-Z
-<!-- COPILOT -->
-<div class="copilot" id="copilotBox">
-  Copilot
-  <div id="copilotOut" style="margin-top:8px;font-size:12px;color:var(--muted)">
-    Ask anything...
+<!-- WALLPAPER LAYER -->
+<div id="wallpaperLayer"></div>
+
+<!-- KERNEL SIMULATION -->
+<div id="kernel">
+  <b>KERNEL v3</b>
+  <div id="kernelLog">booting...</div>
+</div>
+
+<!-- WALLPAPER PICKER -->
+<input type="file" id="filePicker" accept="image/*" hidden onchange="setFromFile(event)"/>
+
+<!-- TERMINAL WINDOW -->
+<div class="window" id="terminal" style="top:80px;left:120px;">
+  <div class="header">Terminal</div>
+  <div class="content">
+    OS Ready<br><br>
+    commands: wallpaper | kernel | fs
   </div>
-  <input id="copilotInput" placeholder="learn / project / job"
-    onkeydown="if(event.key==='Enter') runCopilot()"/>
+</div>
+
+<!-- WALLPAPER WINDOW -->
+<div class="window" id="wallpaper" style="top:150px;left:260px;">
+  <div class="header">Wallpaper System</div>
+  <div class="content">
+
+    <button onclick="document.getElementById('filePicker').click()">
+      Pick Image
+    </button>
+
+    <button onclick="resetWallpaper()">
+      Reset
+    </button>
+
+    <p style="margin-top:10px;font-size:11px;color:#9aa4b2">
+      Drag & drop image anywhere
+    </p>
+
+  </div>
 </div>
 
 <!-- DOCK -->
 <div class="dock">
   <div onclick="openWin('terminal')">Terminal</div>
-  <div onclick="openWin('apps')">Projects</div>
-  <div onclick="openWin('profile')">Profile</div>
-  <div onclick="toggleCopilot()">Copilot</div>
-</div>
-
-<!-- TERMINAL -->
-<div class="window" id="terminal" style="top:90px;left:180px;">
-  <div class="header">
-    <div class="controls">
-      <div class="dot red"></div>
-      <div class="dot yellow"></div>
-      <div class="dot green"></div>
-    </div>
-    <div class="title">EESA Terminal</div>
-  </div>
-
-  <div class="content terminal" id="out"></div>
-  <input id="cmd" placeholder="ls | cd | cat | help"
-    onkeydown="if(event.key==='Enter') run()"/>
-</div>
-
-<!-- APPS -->
-<div class="window" id="apps" style="top:160px;left:260px;">
-  <div class="header">
-    <div class="controls">
-      <div class="dot red"></div>
-      <div class="dot yellow"></div>
-      <div class="dot green"></div>
-    </div>
-    <div class="title">Projects</div>
-  </div>
-
-  <div class="content">
-    Password Manager<br>
-    File Organizer<br>
-    Automation Tools<br>
-    AI Experiments
-  </div>
-</div>
-
-<!-- PROFILE -->
-<div class="window" id="profile" style="top:240px;left:320px;">
-  <div class="header">
-    <div class="controls">
-      <div class="dot red"></div>
-      <div class="dot yellow"></div>
-      <div class="dot green"></div>
-    </div>
-    <div class="title">Profile</div>
-  </div>
-
-  <div class="content">
-    Eesa<br>
-    Systems + AI builder mindset<br><br>
-    Python • C++ • Architecture thinking
-  </div>
+  <div onclick="openWin('wallpaper')">Wallpaper</div>
 </div>
 
 <script>
 
-/* Wallpaper function */
-function setWallpaper(url) {
-  document.body.style.backgroundImage = `url(${url})`;
-  document.body.style.backgroundSize = 'cover';
-  document.body.style.backgroundPosition = 'center';
-}
+/* ================= KERNEL LAYER ================= */
 
-let z=10;
-let cwd="/";
+const Kernel = {
+  processes: [],
+  fs: {
+    "/": {
+      type:"dir",
+      children:{
+        system:{type:"dir",children:{}},
+        user:{type:"dir",children:{}}
+      }
+    }
+  },
 
-/* WINDOW SYSTEM */
+  log(msg){
+    const el = document.getElementById("kernelLog");
+    this.processes.push(msg);
+    el.innerHTML = this.processes.slice(-5).join("<br>");
+  }
+};
+
+Kernel.log("boot sequence started");
+Kernel.log("filesystem mounted");
+Kernel.log("UI engine loaded");
+
+/* ================= WINDOW SYSTEM ================= */
+
 function openWin(id){
   const w=document.getElementById(id);
   w.style.display="block";
-  w.style.zIndex=++z;
+  Kernel.log("opened window: "+id);
 }
 
-/* DRAG */
+/* ================= WALLPAPER SYSTEM ================= */
+
+const wallpaperLayer = document.getElementById("wallpaperLayer");
+
+function setWallpaper(url){
+  const img = new Image();
+
+  img.onload = () => {
+    wallpaperLayer.style.backgroundImage = `url('${url}')`;
+    localStorage.setItem("wp", url);
+    Kernel.log("wallpaper applied");
+  };
+
+  img.src = url;
+}
+
+/* FILE PICKER */
+function setFromFile(event){
+  const file = event.target.files[0];
+  if(!file) return;
+
+  const url = URL.createObjectURL(file);
+  setWallpaper(url);
+}
+
+/* RESET */
+function resetWallpaper(){
+  localStorage.removeItem("wp");
+  wallpaperLayer.style.backgroundImage =
+    "radial-gradient(circle at top,#1a2550,#05060a)";
+  Kernel.log("wallpaper reset");
+}
+
+/* LOAD SAVED */
+const saved = localStorage.getItem("wp");
+if(saved) setWallpaper(saved);
+
+/* ================= DRAG & DROP ================= */
+
+document.addEventListener("dragover",(e)=>{
+  e.preventDefault();
+});
+
+document.addEventListener("drop",(e)=>{
+  e.preventDefault();
+
+  const file = e.dataTransfer.files[0];
+  if(!file) return;
+
+  const url = URL.createObjectURL(file);
+  setWallpaper(url);
+
+  Kernel.log("drag-drop wallpaper set");
+});
+
+/* ================= DRAG WINDOWS ================= */
+
 let drag=null;
 
 document.addEventListener("mousedown",(e)=>{
@@ -347,115 +332,15 @@ document.addEventListener("mousemove",(e)=>{
 
 document.addEventListener("mouseup",()=>drag=null);
 
-const FS={
-  "/":{
-    type:"dir",
-    children:{
-      projects:{
-        type:"dir",
-        children:{
-          "ai.txt":{type:"file",content:"AI Copilot system"},
-          "os.txt":{type:"file",content:"Vision OS simulator"}
-        }
-      },
-      notes:{
-        type:"dir",
-        children:{
-          "idea.txt":{type:"file",content:"build macOS + AI fusion OS"}
-        }
-      }
-    }
-  }
+/* BOOT */
+window.onload=()=>{
+  Kernel.log("system ready");
 };
-
-function resolve(path){
-  if(path==="/") return FS["/"];
-
-  let node=FS["/"];
-  const parts=path.split("/").filter(Boolean);
-
-  for(const p of parts){
-    if(!node.children[p]) return null;
-    node=node.children[p];
-  }
-  return node;
-}
-
-/* ================= TERMINAL ================= */
-
-function run(){
-  const input=document.getElementById("cmd");
-  const out=document.getElementById("out");
-
-  const cmd=input.value.trim();
-  input.value="";
-
-  let res="";
-
-  const [op,...args]=cmd.split(" ");
-
-  if(op==="ls"){
-    const dir=resolve(cwd);
-    res=Object.keys(dir.children||{}).join("  ");
-  }
-
-  else if(op==="pwd"){
-    res=cwd;
-  }
-
-  else if(op==="cd"){
-    let next=args[0];
-    let path=next.startsWith("/")?next:(cwd+"/"+next);
-
-    if(resolve(path)){
-      cwd=path;
-      res="entered "+cwd;
-    }else res="not found";
-  }
-
-  else if(op==="cat"){
-    let f=resolve(cwd+"/"+args[0]);
-    res=f?.content || "file not found";
-  }
-
-  else res="commands: ls cd cat pwd";
-
-  out.innerText+="\n> "+cmd+"\n"+res+"\n";
-  out.scrollTop=out.scrollHeight;
-}
-
-/* ================= COPILOT ================= */
-
-function toggleCopilot(){
-  const box=document.getElementById("copilotBox");
-  box.style.display=box.style.display==="block"?"none":"block";
-}
-
-function runCopilot(){
-  const i=document.getElementById("copilotInput");
-  const o=document.getElementById("copilotOut");
-
-  const m=i.value.toLowerCase();
-  i.value="";
-
-  if(m.includes("learn"))
-    o.innerText="Python → DSA → System Design";
-  else if(m.includes("job"))
-    o.innerText="Build scalable systems + clean code";
-  else if(m.includes("project"))
-    o.innerText="AI tools + automation systems";
-  else
-    o.innerText="Try: learn / job / project";
-}
-
-/* INIT */
-document.getElementById("out").innerText =
-"OS READY\nfilesystem + copilot active\n";
-
 const bootSteps = [
   "Initializing kernel...",
   "Mounting virtual filesystem...",
   "Loading UI engine...",
+  "Loading Kernel ...",   
   "Starting Copilot service...",
   "Launching desktop environment..."
 ];
@@ -480,6 +365,7 @@ function bootSequence(){
 }
 
 window.onload = bootSequence;  
+
 
 </script>
 
