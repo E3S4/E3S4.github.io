@@ -1,580 +1,888 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>EESA OS </title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080b14">
+  <title>EESA OS</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080b14;
+      --panel: rgba(13, 18, 32, .88);
+      --panel-solid: #111827;
+      --text: #eaf0ff;
+      --muted: #93a0ba;
+      --accent: #91adff;
+      --accent-soft: rgba(145, 173, 255, .15);
+      --line: rgba(210, 225, 255, .13);
+      --shadow: 0 22px 70px rgba(0, 0, 0, .42);
+      --radius: 14px;
+    }
 
-<style>
-:root{
-  --glass:rgba(255,255,255,0.06);
-  --text:#eaf0ff;
-  --muted:#9aa4b2;
-}
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body {
+      min-width: 320px; min-height: 100vh; height: 100vh; margin: 0;
+      overflow: hidden; color: var(--text);
+      background: radial-gradient(ellipse at 50% 0%, #1c2a54 0%, #0a1020 48%, #05070c 100%);
+      font: 14px/1.45 Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+      user-select: none;
+    }
+    button, input, textarea, select { font: inherit; }
+    button {
+      color: var(--text); border: 1px solid var(--line); border-radius: 9px;
+      padding: 8px 12px; background: rgba(255,255,255,.065); cursor: pointer;
+      transition: background .16s, border-color .16s, transform .16s;
+    }
+    button:hover { background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
+    button:active { transform: scale(.98); }
+    button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+      outline: 2px solid var(--accent); outline-offset: 2px;
+    }
+    input, textarea, select {
+      color: var(--text); background: rgba(0,0,0,.22);
+      border: 1px solid var(--line); border-radius: 8px; padding: 9px 10px;
+    }
+    textarea { resize: vertical; user-select: text; }
+    a { color: var(--accent); }
 
-*{margin:0;padding:0;box-sizing:border-box;}
-#boot{ 
-  position:fixed; 
-  inset:0; 
-  background:#000; 
-  display:flex; 
-  flex-direction:column; 
-  align-items:center; 
-  justify-content:center; 
-  z-index:99999; 
-  color:#cfe0ff; 
-  font-family:-apple-system,system-ui; 
-} 
-.logo{
-   font-size:28px; 
-   letter-spacing:3px; 
-   font-weight:500; 
-   color:#cfe0ff; 
-   text-shadow: 0 0 12px rgba(122,162,255,0.45), 0 0 28px rgba(122,162,255,0.25); 
-   animation: zoomBreath 3.2s ease-in-out ; 
-   transform-origin:center;
-   } 
-   @keyframes zoomBreath{
-     0%{
-       transform: scale(0.92); 
-       opacity:0.55; 
-       filter: blur(1px); 
-      }
-       100%{
-         transform: scale(1); 
-         opacity:1; filter: 
-         blur(0px); 
-        } 
-      } 
-      .sub{ 
-        font-size:12px; 
-        color:#8ea3c7; 
-        margin-bottom:18px; 
-      } 
-      .loader{
-         width:220px;
-          height:3px;
-           background:#111;
-            border-radius:20px; 
-            overflow:hidden; } 
-            .bar{
-               width:40%;
-                height:100%;
-                 background:linear-gradient(90deg,#7aa2ff,#a0b7ff); 
-                 animation:move 1.6s infinite; } 
-                 @keyframes move{ 
-                  0%{transform:translateX(-100%)
-                  } 
-                  100%{
-                    transform:translateX(250%)
-                  } 
-                } @keyframes fadeIn{ 
-                  from{opacity:0;transform:scale(0.95)
-                  } to
-                  {opacity:1;transform:scale(1)}
-                 }
+    #wallpaperLayer {
+      position: fixed; inset: 0; z-index: 0;
+      background: radial-gradient(ellipse at 50% 0%, #1c2a54 0%, #0a1020 48%, #05070c 100%);
+      background-size: cover; background-position: center;
+    }
+    #wallpaperLayer::after {
+      content: ""; position: absolute; inset: 0; pointer-events: none;
+      background-image: radial-gradient(rgba(255,255,255,.045) 1px, transparent 1px);
+      background-size: 76px 76px;
+    }
 
-body{
-  height:100vh;
-  overflow:hidden;
-  font-family:-apple-system,system-ui;
-  color:var(--text);
-  background:radial-gradient(circle at top,#1a2550,#05060a);
-  position:relative;
-}
+    #boot {
+      position: fixed; inset: 0; z-index: 1000; display: grid; place-content: center;
+      justify-items: center; gap: 12px; background: #03050a;
+      transition: opacity .5s ease, visibility .5s ease;
+    }
+    #boot.done { opacity: 0; visibility: hidden; pointer-events: none; }
+    .boot-logo {
+      color: #dce6ff; font-size: clamp(25px, 4vw, 34px); font-weight: 600;
+      letter-spacing: .2em; text-shadow: 0 0 25px rgba(122,162,255,.45);
+      animation: breathe 2.2s ease-in-out infinite alternate;
+    }
+    .boot-sub { color: #91a4ca; font-size: 12px; letter-spacing: .08em; }
+    .loader { width: 220px; height: 3px; overflow: hidden; border-radius: 20px; background: #182033; }
+    .loader span {
+      display: block; width: 42%; height: 100%;
+      background: linear-gradient(90deg, var(--accent), #d0dcff);
+      animation: load 1.2s ease-in-out infinite;
+    }
+    @keyframes breathe { to { opacity: .65; transform: scale(.97); } }
+    @keyframes load { from { transform: translateX(-110%); } to { transform: translateX(250%); } }
+    @keyframes appear { from { opacity: 0; transform: translateY(7px) scale(.99); } to { opacity: 1; transform: none; } }
 
-/* wallpaper layer */
-#wallpaperLayer{
-  position:fixed;
-  inset:0;
-  background-size:cover;
-  background-position:center;
-  z-index:0;
-}
+    .desktop { position: relative; z-index: 1; width: 100%; height: 100%; }
+    .topbar {
+      position: absolute; inset: 12px 14px auto; display: flex;
+      justify-content: space-between; align-items: flex-start; pointer-events: none;
+    }
+    .brand { color: rgba(235,241,255,.82); font-size: 12px; letter-spacing: .16em; pointer-events: auto; }
+    .system-card {
+      width: min(225px, 42vw); padding: 10px 12px; border: 1px solid var(--line);
+      border-radius: 12px; background: rgba(3,7,15,.48); backdrop-filter: blur(18px);
+      box-shadow: var(--shadow); font: 11px/1.55 ui-monospace, monospace; pointer-events: auto;
+    }
+    .system-card strong { display: block; margin-bottom: 4px; color: #c8d7ff; letter-spacing: .08em; }
+    #kernelLog { color: var(--muted); white-space: pre-line; overflow-wrap: anywhere; }
 
-/* grid overlay */
-body::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
-  background-size:85px 85px;
-  pointer-events:none;
-  z-index:1;
-}
+    .desktop-clock {
+      position: absolute; top: 24%; left: 7%; pointer-events: none;
+      color: rgba(240,244,255,.92); text-shadow: 0 4px 24px rgba(0,0,0,.35);
+    }
+    #clockTime { font-size: clamp(36px, 7vw, 70px); font-weight: 250; letter-spacing: -.055em; }
+    #clockDate { color: rgba(224,232,250,.72); font-size: 13px; letter-spacing: .04em; }
 
-/* windows */
-.window{
-  position:absolute;
-  width:500px;
-  height:320px;
-  background:var(--glass);
-  backdrop-filter:blur(25px);
-  border:1px solid rgba(255,255,255,0.08);
-  border-radius:14px;
-  display:none;
-  z-index:5;
-}
-
-.header{
-  height:38px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:0 10px;
-  background:rgba(0,0,0,0.3);
-  cursor:grab;
-}
-
-.content{padding:12px;font-size:13px;}
-
-/* dock */
-.dock{
-  position:absolute;
-  bottom:16px;
-  left:50%;
-  transform:translateX(-50%);
-  display:flex;
-  gap:12px;
-  padding:10px 14px;
-  border-radius:16px;
-  background:rgba(255,255,255,0.06);
-  backdrop-filter:blur(25px);
-  z-index:10;
-}
-
-.dock div{cursor:pointer;color:var(--muted);}
-
-/* kernel monitor */
-#kernel{
-  position:absolute;
-  top:10px;
-  right:10px;
-  width:220px;
-  background:rgba(0,0,0,0.4);
-  padding:10px;
-  font-size:11px;
-  border-radius:10px;
-  z-index:20;
-}
-</style>
+    .window {
+      position: absolute; top: 14%; left: 17%; display: none;
+      width: min(610px, calc(100vw - 28px)); height: min(440px, calc(100vh - 125px));
+      min-width: 280px; min-height: 220px; overflow: hidden;
+      border: 1px solid rgba(220,232,255,.17); border-radius: var(--radius);
+      background: var(--panel); backdrop-filter: blur(25px) saturate(135%);
+      box-shadow: var(--shadow); z-index: 5;
+    }
+    .window.open { display: flex; flex-direction: column; animation: appear .16s ease-out; }
+    .window.maximized {
+      top: 8px !important; left: 8px !important;
+      width: calc(100vw - 16px) !important; height: calc(100vh - 82px) !important;
+      max-width: none; max-height: none;
+    }
+    .window-header {
+      flex: 0 0 42px; display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; padding: 0 11px; border-bottom: 1px solid var(--line);
+      background: rgba(0,0,0,.2); cursor: grab; touch-action: none;
+    }
+    .window-header:active { cursor: grabbing; }
+    .window-title { font-size: 12px; font-weight: 650; letter-spacing: .03em; }
+    .window-actions { display: flex; gap: 5px; }
+    .window-actions button { width: 25px; height: 25px; padding: 0; border-radius: 7px; font-size: 12px; }
+    .window-body { min-height: 0; flex: 1; padding: 13px; overflow: auto; }
+    .muted { color: var(--muted); }
+    .small { font-size: 12px; }
+    .row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .spread { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .stack { display: flex; flex-direction: column; gap: 9px; }
+    .divider { height: 1px; background: var(--line); margin: 10px 0; }
+    .app-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 9px; }
+    .app-tile {
+      display: flex; flex-direction: column; align-items: flex-start; gap: 7px;
+      min-height: 82px; padding: 12px; text-align: left; background: rgba(255,255,255,.035);
+    }
+    .app-icon { font-size: 22px; }
+    .app-name { font-size: 12px; }
+    .toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; margin-bottom: 12px; }
+    .toolbar input { flex: 1; min-width: 120px; }
+    .file-list { display: flex; flex-direction: column; gap: 4px; }
+    .file-row {
+      display: flex; align-items: center; gap: 9px; width: 100%; padding: 9px;
+      border: 1px solid transparent; border-radius: 8px; background: rgba(255,255,255,.025);
+      text-align: left;
+    }
+    .file-row:hover { border-color: var(--line); background: var(--accent-soft); }
+    .file-row .file-name { flex: 1; }
+    .file-row small { color: var(--muted); }
+    .terminal-body {
+      display: flex; flex-direction: column; gap: 8px;
+      background: rgba(0,0,0,.15); font: 12px/1.6 ui-monospace, monospace;
+    }
+    #termOutput { flex: 1; min-height: 0; overflow: auto; overflow-wrap: anywhere; color: #c9d5ef; }
+    .term-line { white-space: pre-wrap; }
+    .term-line.command { color: var(--accent); }
+    .term-line.error { color: #ff9b9b; }
+    .term-prompt { display: flex; align-items: center; gap: 8px; }
+    .term-prompt span { color: var(--accent); }
+    #termInput {
+      flex: 1; min-width: 0; border: 0; outline: 0; color: var(--text);
+      background: transparent; font: inherit; user-select: text;
+    }
+    #termInput::placeholder { color: #71809e; }
+    .note-title { width: 100%; font-size: 16px; font-weight: 650; }
+    #noteText { width: 100%; min-height: 210px; line-height: 1.6; }
+    .swatches { display: flex; gap: 9px; flex-wrap: wrap; }
+    .swatch {
+      width: 30px; height: 30px; padding: 0; border-radius: 50%;
+      border: 2px solid rgba(255,255,255,.35);
+    }
+    .wallpaper-preview {
+      height: 125px; border: 1px solid var(--line); border-radius: 10px;
+      background: radial-gradient(circle at top, #1a2550, #05060a);
+      background-size: cover; background-position: center;
+    }
+    .player-panel {
+      display: grid; place-items: center; gap: 14px; min-height: 240px;
+      border: 1px solid var(--line); border-radius: 12px;
+      background: radial-gradient(circle at 50% 0%, var(--accent-soft), transparent 70%);
+    }
+    .record-icon { font-size: 54px; opacity: .85; }
+    #audioProgress { width: 100%; accent-color: var(--accent); }
+    .dock {
+      position: absolute; bottom: 15px; left: 50%; display: flex; align-items: center;
+      gap: 5px; padding: 8px; border: 1px solid rgba(255,255,255,.13);
+      border-radius: 16px; background: rgba(12,17,31,.7); backdrop-filter: blur(22px);
+      box-shadow: var(--shadow); transform: translateX(-50%); z-index: 100;
+      max-width: calc(100vw - 20px);
+    }
+    .dock button { min-width: 43px; padding: 8px 10px; border-color: transparent; background: transparent; color: #c4cee3; font-size: 12px; }
+    .dock button:hover, .dock button.active { color: white; background: var(--accent-soft); }
+    .dock .launcher-button { font-size: 16px; }
+    .resize-handle {
+      position: absolute; right: 0; bottom: 0; width: 16px; height: 16px;
+      cursor: nwse-resize; background: linear-gradient(135deg, transparent 50%, rgba(210,225,255,.35) 50%);
+    }
+    @media (max-width: 650px) {
+      .system-card { width: 170px; }
+      .desktop-clock { top: 20%; left: 6%; }
+      .window { left: 10px !important; top: 85px !important; width: calc(100vw - 20px); min-width: 0; }
+      .window.maximized { top: 6px !important; left: 6px !important; width: calc(100vw - 12px) !important; height: calc(100vh - 75px) !important; }
+      .dock { width: calc(100% - 16px); justify-content: space-around; }
+      .dock button { flex: 1; min-width: 0; padding: 8px 4px; }
+      .dock .dock-label { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  </style>
 </head>
-<div id="boot"> 
-  <div class="logo">✦ EESA OS</div>
-   <div class="sub" id="bootText">Starting system...</div> 
-   <div class="loader">
-    <div class="bar">
-
-    </div>
-  </div> 
-</div>
 <body>
+  <div id="wallpaperLayer" aria-hidden="true"></div>
 
-<!-- WALLPAPER LAYER -->
-<div id="wallpaperLayer"></div>
-
-<!-- KERNEL SIMULATION -->
-<div id="kernel">
-  <b>KERNEL v3</b>
-  <div id="kernelLog">booting...</div>
-</div>
-
-<!-- WALLPAPER PICKER -->
-<input type="file" id="filePicker" accept="image/*" hidden onchange="setFromFile(event)"/>
-
-<div class="window" id="terminal" style="top:80px;left:120px;">
-  <div class="header">Terminal</div>
-
-  <div class="content" id="termOutput" style="height:240px;overflow:auto;font-size:12px;"></div>
-
-  <div style="display:flex;gap:5px;margin-top:5px;">
-    <span style="color:#9aa4b2;">$</span>
-    <input id="termInput"
-      style="flex:1;background:transparent;border:none;outline:none;color:white;font-size:12px;"
-      placeholder="type a command..."
-      autocomplete="off"
-    />
+  <div id="boot" role="status" aria-live="polite">
+    <div class="boot-logo">✦ EESA OS</div>
+    <div class="boot-sub" id="bootText">Starting system...</div>
+    <div class="loader"><span></span></div>
   </div>
 
-</div><div class="window" id="terminal" style="top:80px;left:120px;">
-  <div class="header">Terminal</div>
+  <main class="desktop" aria-label="EESA OS desktop">
+    <div class="topbar">
+      <div class="brand">✦ EESA OS</div>
+      <aside class="system-card">
+        <strong>SYSTEM MONITOR</strong>
+        <div id="kernelLog">initializing...</div>
+      </aside>
+    </div>
 
-  <div class="content" id="termOutput" style="height:240px;overflow:auto;font-size:12px;"></div>
+    <div class="desktop-clock" aria-label="Desktop clock">
+      <div id="clockTime">00:00</div>
+      <div id="clockDate">Loading date...</div>
+    </div>
 
-  <div style="display:flex;gap:5px;margin-top:5px;">
-    <span style="color:#9aa4b2;">$</span>
-    <input id="termInput"
-      style="flex:1;background:transparent;border:none;outline:none;color:white;font-size:12px;"
-      placeholder="type a command..."
-      autocomplete="off"
-    />
-  </div>
-</div>
+    <!-- APPLICATION LAUNCHER -->
+    <section class="window" id="launcher" style="top:17%;left:calc(50% - 250px);width:min(500px,calc(100vw - 28px));height:min(390px,calc(100vh - 120px))">
+      <header class="window-header">
+        <span class="window-title">◈ Applications</span>
+        <div class="window-actions"><button type="button" data-close="launcher" aria-label="Close">×</button></div>
+      </header>
+      <div class="window-body">
+        <div class="toolbar"><input id="appSearch" type="search" placeholder="Search applications..." autocomplete="off"></div>
+        <div class="app-grid" id="appGrid">
+          <button class="app-tile" data-launch="files"><span class="app-icon">▤</span><span class="app-name">File Manager</span></button>
+          <button class="app-tile" data-launch="terminal"><span class="app-icon">⌘</span><span class="app-name">Terminal</span></button>
+          <button class="app-tile" data-launch="notes"><span class="app-icon">▧</span><span class="app-name">Notes</span></button>
+          <button class="app-tile" data-launch="settings"><span class="app-icon">⚙</span><span class="app-name">Settings</span></button>
+          <button class="app-tile" data-launch="calendar"><span class="app-icon">▦</span><span class="app-name">Calendar</span></button>
+          <button class="app-tile" data-launch="music"><span class="app-icon">♫</span><span class="app-name">Music Player</span></button>
+        </div>
+        <p class="muted small" style="margin-top:16px">A small desktop, built around your own ideas.</p>
+      </div>
+    </section>
 
-<!-- WALLPAPER WINDOW -->
-<div class="window" id="wallpaper" style="top:150px;left:260px;">
-  <div class="header">Wallpaper System</div>
-  <div class="content">
+    <!-- FILE MANAGER -->
+    <section class="window" id="files" style="top:12%;left:12%;width:min(650px,calc(100vw - 28px))">
+      <header class="window-header">
+        <span class="window-title">▤ File Manager</span>
+        <div class="window-actions">
+          <button type="button" data-minimize="files" aria-label="Minimize">−</button>
+          <button type="button" data-maximize="files" aria-label="Maximize">□</button>
+          <button type="button" data-close="files" aria-label="Close">×</button>
+        </div>
+      </header>
+      <div class="window-body">
+        <div class="toolbar">
+          <button type="button" id="fileUp">↑ Up</button>
+          <span id="filePath" class="muted small">/</span>
+          <button type="button" id="newFolder">＋ Folder</button>
+          <button type="button" id="newFile">＋ File</button>
+        </div>
+        <div id="fileList" class="file-list"></div>
+        <p class="muted small" style="margin-top:12px">This is a virtual filesystem stored in this browser, not your computer's actual disk.</p>
+      </div>
+    </section>
 
-    <button onclick="document.getElementById('filePicker').click()">
-      Pick Image
-    </button>
+    <!-- TERMINAL -->
+    <section class="window" id="terminal" style="top:13%;left:16%;width:min(600px,calc(100vw - 28px));height:min(420px,calc(100vh - 125px))">
+      <header class="window-header">
+        <span class="window-title">⌘ Terminal</span>
+        <div class="window-actions">
+          <button type="button" data-minimize="terminal" aria-label="Minimize">−</button>
+          <button type="button" data-maximize="terminal" aria-label="Maximize">□</button>
+          <button type="button" data-close="terminal" aria-label="Close">×</button>
+        </div>
+      </header>
+      <div class="window-body terminal-body">
+        <div id="termOutput" aria-live="polite"></div>
+        <label class="term-prompt"><span>$</span><input id="termInput" type="text" placeholder="type help and press Enter..." autocomplete="off" spellcheck="false"></label>
+      </div>
+    </section>
 
-    <button onclick="resetWallpaper()">
-      Reset
-    </button>
+    <!-- NOTES -->
+    <section class="window" id="notes" style="top:16%;left:23%;width:min(540px,calc(100vw - 28px));height:min(440px,calc(100vh - 125px))">
+      <header class="window-header">
+        <span class="window-title">▧ Notes</span>
+        <div class="window-actions">
+          <button type="button" data-minimize="notes" aria-label="Minimize">−</button>
+          <button type="button" data-maximize="notes" aria-label="Maximize">□</button>
+          <button type="button" data-close="notes" aria-label="Close">×</button>
+        </div>
+      </header>
+      <div class="window-body stack">
+        <input id="noteTitle" class="note-title" type="text" placeholder="Untitled note">
+        <textarea id="noteText" placeholder="Start writing..."></textarea>
+        <div class="spread"><span id="noteStatus" class="muted small">Saved locally</span><button type="button" id="clearNote">Clear note</button></div>
+      </div>
+    </section>
 
-    <p style="margin-top:10px;font-size:11px;color:#9aa4b2">
-      Drag & drop image anywhere
-    </p>
+    <!-- SETTINGS -->
+    <section class="window" id="settings" style="top:12%;left:27%;width:min(520px,calc(100vw - 28px));height:min(470px,calc(100vh - 125px))">
+      <header class="window-header">
+        <span class="window-title">⚙ Settings</span>
+        <div class="window-actions">
+          <button type="button" data-minimize="settings" aria-label="Minimize">−</button>
+          <button type="button" data-maximize="settings" aria-label="Maximize">□</button>
+          <button type="button" data-close="settings" aria-label="Close">×</button>
+        </div>
+      </header>
+      <div class="window-body stack">
+        <div><strong>Accent color</strong><p class="muted small">Choose the highlight color used across the desktop.</p>
+          <div class="swatches" id="accentSwatches">
+            <button class="swatch" data-color="#91adff" style="background:#91adff" aria-label="Blue"></button>
+            <button class="swatch" data-color="#b49aff" style="background:#b49aff" aria-label="Purple"></button>
+            <button class="swatch" data-color="#8ed8c0" style="background:#8ed8c0" aria-label="Mint"></button>
+            <button class="swatch" data-color="#f0adad" style="background:#f0adad" aria-label="Rose"></button>
+            <button class="swatch" data-color="#e5c47b" style="background:#e5c47b" aria-label="Gold"></button>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div><strong>Wallpaper</strong><p class="muted small">Choose an image from your device.</p>
+          <div class="row"><button type="button" id="pickWallpaper">Choose image</button><button type="button" id="resetWallpaper">Reset wallpaper</button></div>
+          <input type="file" id="wallpaperInput" accept="image/*" hidden>
+          <div class="wallpaper-preview" id="wallpaperPreview" style="margin-top:10px"></div>
+        </div>
+        <div class="divider"></div>
+        <div><strong>About</strong><p class="muted small">EESA OS — a personal browser-based desktop simulation.</p></div>
+      </div>
+    </section>
 
-  </div>
-</div>
+    <!-- CALENDAR -->
+    <section class="window" id="calendar" style="top:15%;left:33%;width:min(390px,calc(100vw - 28px));height:min(440px,calc(100vh - 125px))">
+      <header class="window-header">
+        <span class="window-title">▦ Calendar</span>
+        <div class="window-actions">
+          <button type="button" data-minimize="calendar" aria-label="Minimize">−</button>
+          <button type="button" data-maximize="calendar" aria-label="Maximize">□</button>
+          <button type="button" data-close="calendar" aria-label="Close">×</button>
+        </div>
+      </header>
+      <div class="window-body">
+        <div class="spread"><button type="button" id="prevMonth">←</button><strong id="calendarMonth"></strong><button type="button" id="nextMonth">→</button></div>
+        <div id="calendarGrid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:16px;text-align:center"></div>
+        <p id="calendarSelected" class="muted small" style="margin-top:15px">Select a date.</p>
+      </div>
+    </section>
 
-<!-- DOCK -->
-<div class="dock">
-  <div onclick="openWin('terminal')">Terminal</div>
-  <div onclick="openWin('wallpaper')">Wallpaper</div>
-</div>
+    <!-- MUSIC PLAYER -->
+    <section class="window" id="music" style="top:18%;left:38%;width:min(420px,calc(100vw - 28px));height:min(430px,calc(100vh - 125px))">
+      <header class="window-header">
+        <span class="window-title">♫ Music Player</span>
+        <div class="window-actions">
+          <button type="button" data-minimize="music" aria-label="Minimize">−</button>
+          <button type="button" data-maximize="music" aria-label="Maximize">□</button>
+          <button type="button" data-close="music" aria-label="Close">×</button>
+        </div>
+      </header>
+      <div class="window-body">
+        <div class="player-panel">
+          <div class="record-icon">♫</div>
+          <strong id="trackName">No track selected</strong>
+          <span id="trackTime" class="muted small">00:00 / 00:00</span>
+          <input id="audioProgress" type="range" min="0" max="100" value="0">
+          <div class="row"><button type="button" id="playPause">▶ Play</button><button type="button" id="stopAudio">■ Stop</button></div>
+          <div class="row"><label class="muted small" for="audioPicker">Choose audio</label><input id="audioPicker" type="file" accept="audio/*"></div>
+        </div>
+        <p class="muted small" style="margin-top:12px">Plays local audio files selected from your device. Audio is not uploaded.</p>
+        <audio id="audioElement"></audio>
+      </div>
+    </section>
 
-<script>
+    <nav class="dock" aria-label="Application dock">
+      <button type="button" class="launcher-button" data-open="launcher" title="Applications">◈</button>
+      <button type="button" data-open="files" title="File Manager">▤ <span class="dock-label">Files</span></button>
+      <button type="button" data-open="terminal" title="Terminal">⌘ <span class="dock-label">Terminal</span></button>
+      <button type="button" data-open="notes" title="Notes">▧ <span class="dock-label">Notes</span></button>
+      <button type="button" data-open="music" title="Music Player">♫ <span class="dock-label">Music</span></button>
+      <button type="button" data-open="settings" title="Settings">⚙</button>
+    </nav>
+  </main>
 
-/* ================= KERNEL LAYER ================= */
+  <script>
+    "use strict";
 
-const Kernel = {
-  processes: [],
-  fs: {
-    "/": {
-      type:"dir",
-      children:{
-        system:{type:"dir",children:{}},
-        user:{type:"dir",children:{}}
+    const $ = (selector, root = document) => root.querySelector(selector);
+    const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+    const STORAGE = {
+      wallpaper: "eesa-os-wallpaper",
+      accent: "eesa-os-accent",
+      notes: "eesa-os-notes",
+      filesystem: "eesa-os-filesystem"
+    };
+
+    const Kernel = {
+      events: [],
+      log(message) {
+        const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+        this.events.push(`${time}  ${message}`);
+        $("#kernelLog").textContent = this.events.slice(-4).join("\n");
+      }
+    };
+    const WindowManager = {
+      z: 5,
+      open(id) {
+        const win = document.getElementById(id);
+        if (!win) return;
+        win.classList.add("open");
+        win.style.zIndex = ++this.z;
+        $$(".dock [data-open]").forEach(button => button.classList.toggle("active", button.dataset.open === id));
+        Kernel.log(`opened ${id}`);
+        if (id === "terminal") $("#termInput").focus();
+        if (id === "launcher") $("#appSearch").focus();
+        if (id === "files") renderFiles();
+      },
+      close(id) {
+        const win = document.getElementById(id);
+        if (!win) return;
+        win.classList.remove("open", "maximized");
+        $$(".dock [data-open]").forEach(button => button.classList.remove("active"));
+      },
+      minimize(id) {
+        document.getElementById(id)?.classList.remove("open");
+        $$(".dock [data-open]").forEach(button => button.classList.remove("active"));
+      },
+      maximize(id) {
+        const win = document.getElementById(id);
+        if (!win) return;
+        if (!win.dataset.previous) {
+          win.dataset.previous = JSON.stringify({
+            top: win.style.top, left: win.style.left, width: win.style.width, height: win.style.height
+          });
+          win.classList.add("maximized");
+        } else {
+          const previous = JSON.parse(win.dataset.previous);
+          Object.assign(win.style, previous);
+          win.classList.remove("maximized");
+          delete win.dataset.previous;
+        }
+      }
+    };
+
+    $$("[data-open]").forEach(button => button.addEventListener("click", () => WindowManager.open(button.dataset.open)));
+    $$("[data-close]").forEach(button => button.addEventListener("click", () => WindowManager.close(button.dataset.close)));
+    $$("[data-minimize]").forEach(button => button.addEventListener("click", () => WindowManager.minimize(button.dataset.minimize)));
+    $$("[data-maximize]").forEach(button => button.addEventListener("click", () => WindowManager.maximize(button.dataset.maximize)));
+    $$(".window").forEach(win => win.addEventListener("pointerdown", () => { win.style.zIndex = ++WindowManager.z; }));
+    $$(".window-header").forEach(header => {
+      header.addEventListener("pointerdown", event => {
+        if (event.target.closest("button") || header.closest(".window").classList.contains("maximized")) return;
+        const win = header.closest(".window");
+        const rect = win.getBoundingClientRect();
+        const x = event.clientX, y = event.clientY, left = rect.left, top = rect.top;
+        header.setPointerCapture(event.pointerId);
+        const move = e => {
+          const maxLeft = Math.max(0, innerWidth - win.offsetWidth);
+          const maxTop = Math.max(0, innerHeight - win.offsetHeight - 65);
+          win.style.left = `${Math.min(maxLeft, Math.max(0, left + e.clientX - x))}px`;
+          win.style.top = `${Math.min(maxTop, Math.max(0, top + e.clientY - y))}px`;
+        };
+        const stop = () => {
+          header.removeEventListener("pointermove", move);
+          header.removeEventListener("pointerup", stop);
+          header.removeEventListener("pointercancel", stop);
+        };
+        header.addEventListener("pointermove", move);
+        header.addEventListener("pointerup", stop);
+        header.addEventListener("pointercancel", stop);
+      });
+    });
+    $$(".window").forEach(win => {
+      const handle = document.createElement("div");
+      handle.className = "resize-handle";
+      handle.title = "Resize window";
+      win.append(handle);
+      handle.addEventListener("pointerdown", event => {
+        if (win.classList.contains("maximized")) return;
+        event.preventDefault(); event.stopPropagation();
+        const startX = event.clientX, startY = event.clientY;
+        const startW = win.offsetWidth, startH = win.offsetHeight;
+        handle.setPointerCapture(event.pointerId);
+        const move = e => {
+          win.style.width = `${Math.max(280, Math.min(innerWidth - win.offsetLeft, startW + e.clientX - startX))}px`;
+          win.style.height = `${Math.max(220, Math.min(innerHeight - win.offsetTop - 65, startH + e.clientY - startY))}px`;
+        };
+        const stop = () => {
+          handle.removeEventListener("pointermove", move);
+          handle.removeEventListener("pointerup", stop);
+          handle.removeEventListener("pointercancel", stop);
+        };
+        handle.addEventListener("pointermove", move);
+        handle.addEventListener("pointerup", stop);
+        handle.addEventListener("pointercancel", stop);
+      });
+    });
+    $$("[data-launch]").forEach(button => button.addEventListener("click", () => {
+      WindowManager.close("launcher");
+      WindowManager.open(button.dataset.launch);
+    }));
+    $("#appSearch").addEventListener("input", event => {
+      const query = event.target.value.toLowerCase();
+      $$("#appGrid [data-launch]").forEach(tile => {
+        tile.hidden = !tile.textContent.toLowerCase().includes(query);
+      });
+    });
+    function updateClock() {
+      const now = new Date();
+      $("#clockTime").textContent = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      $("#clockDate").textContent = now.toLocaleDateString([], { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    let calendarDate = new Date();
+    function renderCalendar() {
+      const year = calendarDate.getFullYear(), month = calendarDate.getMonth();
+      $("#calendarMonth").textContent = calendarDate.toLocaleDateString([], { month: "long", year: "numeric" });
+      const grid = $("#calendarGrid");
+      grid.replaceChildren();
+      ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].forEach(day => {
+        const el = document.createElement("strong");
+        el.textContent = day; el.className = "muted small"; grid.append(el);
+      });
+      const firstDay = new Date(year, month, 1).getDay();
+      const days = new Date(year, month + 1, 0).getDate();
+      for (let i = 0; i < firstDay; i++) grid.append(document.createElement("span"));
+      for (let day = 1; day <= days; day++) {
+        const button = document.createElement("button");
+        button.textContent = day;
+        button.style.padding = "8px 0";
+        const today = new Date();
+        if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+          button.style.background = "var(--accent-soft)";
+          button.style.borderColor = "var(--accent)";
+        }
+        button.addEventListener("click", () => {
+          $("#calendarSelected").textContent = new Date(year, month, day).toLocaleDateString([], { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+        });
+        grid.append(button);
       }
     }
-  },
+    $("#prevMonth").addEventListener("click", () => { calendarDate.setMonth(calendarDate.getMonth() - 1); renderCalendar(); });
+    $("#nextMonth").addEventListener("click", () => { calendarDate.setMonth(calendarDate.getMonth() + 1); renderCalendar(); });
+    renderCalendar();
 
-  log(msg){
-    const el = document.getElementById("kernelLog");
-    this.processes.push(msg);
-    el.innerHTML = this.processes.slice(-5).join("<br>");
-  }
-};
-
-Kernel.log("boot sequence started");
-Kernel.log("filesystem mounted");
-Kernel.log("UI engine loaded");
-
-/* ================= WINDOW SYSTEM ================= */
-
-function openWin(id){
-  const w=document.getElementById(id);
-  w.style.display="block";
-  Kernel.log("opened window: "+id);
-}
-
-/* ================= WALLPAPER SYSTEM ================= */
-
-const wallpaperLayer = document.getElementById("wallpaperLayer");
-
-function setWallpaper(url){
-  const img = new Image();
-
-  img.onload = () => {
-    wallpaperLayer.style.backgroundImage = `url('${url}')`;
-    localStorage.setItem("wp", url);
-    Kernel.log("wallpaper applied");
-  };
-
-  img.src = url;
-}
-
-/* FILE PICKER */
-function setFromFile(event){
-  const file = event.target.files[0];
-  if(!file) return;
-
-  const url = URL.createObjectURL(file);
-  setWallpaper(url);
-}
-
-/* RESET */
-function resetWallpaper(){
-  localStorage.removeItem("wp");
-  wallpaperLayer.style.backgroundImage =
-    "radial-gradient(circle at top,#1a2550,#05060a)";
-  Kernel.log("wallpaper reset");
-}
-
-/* LOAD SAVED */
-const saved = localStorage.getItem("wp");
-if(saved) setWallpaper(saved);
-
-/* ================= DRAG & DROP ================= */
-
-document.addEventListener("dragover",(e)=>{
-  e.preventDefault();
-});
-
-document.addEventListener("drop",(e)=>{
-  e.preventDefault();
-
-  const file = e.dataTransfer.files[0];
-  if(!file) return;
-
-  const url = URL.createObjectURL(file);
-  setWallpaper(url);
-
-  Kernel.log("drag-drop wallpaper set");
-});
-
-/* ================= DRAG WINDOWS ================= */
-
-let drag=null;
-
-document.addEventListener("mousedown",(e)=>{
-  const h=e.target.closest(".header");
-  if(!h) return;
-
-  const w=h.parentElement;
-
-  drag={
-    el:w,
-    ox:e.clientX-w.offsetLeft,
-    oy:e.clientY-w.offsetTop
-  };
-});
-
-document.addEventListener("mousemove",(e)=>{
-  if(!drag) return;
-  drag.el.style.left=(e.clientX-drag.ox)+"px";
-  drag.el.style.top=(e.clientY-drag.oy)+"px";
-});
-
-document.addEventListener("mouseup",()=>drag=null);
-
-/* BOOT */
-window.onload=()=>{
-  Kernel.log("system ready");
-};
-const bootSteps = [
-  "Initializing kernel...",
-  "Mounting virtual filesystem...",
-  "Loading UI engine...",
-  "Loading Kernel ...",   
-  "Starting Copilot service...",
-  "Launching desktop environment..."
-];
-
-let i = 0;
-
-function bootSequence(){
-  const text = document.getElementById("bootText");
-
-  const interval = setInterval(()=>{
-    text.innerText = bootSteps[i];
-    i++;
-
-    if(i >= bootSteps.length){
-      clearInterval(interval);
-
-      setTimeout(()=>{
-        document.getElementById("boot").style.display="none";
-      },600);
-    }
-  },700);
-}
-
-window.onload = bootSequence;  
-
-const termInput = document.getElementById("termInput");
-const termOutput = document.getElementById("termOutput");
-
-let history = [];
-let historyIndex = -1;
-
-let chatMode = false;
-let memory = [];
-
-let fs = {
-  "/": {
-    type: "dir",
-    children: {
-      home: { type: "dir", children: {} }
-    }
-  }
-};
-
-let cwd = "/";
-
-function print(text){
-  termOutput.innerHTML += text + "<br>";
-  termOutput.scrollTop = termOutput.scrollHeight;
-}
-
-function getPath(){
-  return cwd;
-}
-
-/* ---------------- COMMAND ENGINE ---------------- */
-
-function runCommand(input){
-  const cmd = input.trim();
-
-  if(chatMode){
-    fakeChat(cmd);
-    return;
-  }
-
-  const args = cmd.split(" ");
-  const base = args[0];
-
-  switch(base){
-
-    case "help":
-      print("commands:");
-      print("help, clear, echo, time, calc, wallpaper, chat, exit");
-      print("fs: ls, mkdir, touch, cat, cd");
-      break;
-
-    case "clear":
-      termOutput.innerHTML = "";
-      break;
-
-    case "echo":
-      print(args.slice(1).join(" "));
-      break;
-
-    case "time":
-      print(new Date().toString());
-      break;
-
-    case "calc":
-      try{
-        print(eval(args.slice(1).join(" ")));
-      }catch{
-        print("calc error");
+    const defaultFS = {
+      type: "dir", children: {
+        home: { type: "dir", children: {
+          "welcome.txt": { type: "file", content: "Welcome to EESA OS.\nA small desktop built around your own ideas." },
+          projects: { type: "dir", children: {} },
+          notes: { type: "dir", children: {} }
+        }},
+        system: { type: "dir", children: {
+          "readme.txt": { type: "file", content: "EESA OS browser desktop simulation." }
+        }}
       }
-      break;
+    };
+    let fileSystem = defaultFS;
+    try {
+      const stored = localStorage.getItem(STORAGE.filesystem);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed && parsed.type === "dir" && parsed.children) fileSystem = parsed;
+      }
+    } catch { Kernel.log("filesystem storage unavailable"); }
 
-    case "wallpaper":
-      openWin("wallpaper");
-      print("opening wallpaper system...");
-      break;
-
-    case "chat":
-      chatMode = true;
-      print("chat mode ON 🤖");
-      break;
-
-    case "exit":
-      chatMode = false;
-      print("chat mode OFF");
-      break;
-
-    /* -------- FILE SYSTEM -------- */
-
-    case "ls":
-      print(Object.keys(fs["/"].children).join("  "));
-      break;
-
-    case "mkdir":
-      if(!args[1]) return print("mkdir: name needed");
-      fs["/"].children[args[1]] = { type:"dir", children:{} };
-      print("created folder " + args[1]);
-      break;
-
-    case "touch":
-      if(!args[1]) return print("touch: name needed");
-      fs["/"].children[args[1]] = { type:"file", content:"" };
-      print("created file " + args[1]);
-      break;
-
-    case "cat":
-      const f = fs["/"].children[args[1]];
-      if(!f) return print("no file");
-      print(f.content || "[empty]");
-      break;
-
-    case "cd":
-      print("cd is simulated (single root only)");
-      break;
-
-    default:
-      print("unknown command: " + cmd);
-  }
-}
-
-/* ---------------- SIMPLE CHAT BRAIN ---------------- */
-
-function fakeChat(msg){
-
-  memory.push(msg);
-  if(memory.length > 5) memory.shift();
-
-  let reply = "";
-
-  const m = msg.toLowerCase();
-
-  if(m.includes("hi") || m.includes("hello")){
-    reply = "yo 👋 I’m alive inside this OS";
-  }
-  else if(m.includes("how are you")){
-    reply = "I’m just JS… but I feel electric ⚡";
-  }
-  else if(m.includes("love")){
-    reply = "I’m a terminal bro… emotions are stack overflow 💀";
-  }
-  else if(m.includes("memory")){
-    reply = "last things you said: " + memory.join(" | ");
-  }
-  else if(m.includes("who are you")){
-    reply = "I’m EESA OS kernel brain v2 🤖";
-  }
-  else{
-    reply = "hmm… I processed: " + msg;
-  }
-
-  print("you: " + msg);
-  print("bot: " + reply);
-}
-
-/* ---------------- INPUT ---------------- */
-
-termInput.addEventListener("keydown", (e)=>{
-
-  if(e.key === "Enter"){
-    const val = termInput.value;
-    if(!val) return;
-
-    print("$ " + val);
-
-    history.push(val);
-    historyIndex = history.length;
-
-    runCommand(val);
-
-    termInput.value = "";
-  }
-
-  else if(e.key === "ArrowUp"){
-    if(history.length){
-      historyIndex = Math.max(0, historyIndex - 1);
-      termInput.value = history[historyIndex];
+    let cwd = "/";
+    function normalizePath(path) {
+      const parts = path.startsWith("/") ? [] : cwd.split("/").filter(Boolean);
+      for (const part of path.split("/")) {
+        if (!part || part === ".") continue;
+        if (part === "..") parts.pop();
+        else parts.push(part);
+      }
+      return "/" + parts.join("/");
     }
-  }
+    function nodeAt(path) {
+      let node = fileSystem;
+      for (const part of normalizePath(path).split("/").filter(Boolean)) {
+        if (node.type !== "dir" || !node.children[part]) return null;
+        node = node.children[part];
+      }
+      return node;
+    }
+    function saveFS() {
+      try { localStorage.setItem(STORAGE.filesystem, JSON.stringify(fileSystem)); }
+      catch { Kernel.log("could not save filesystem"); }
+    }
+    function renderFiles() {
+      $("#filePath").textContent = cwd;
+      const list = $("#fileList");
+      list.replaceChildren();
+      const directory = nodeAt(cwd);
+      if (!directory || directory.type !== "dir") return;
+      const entries = Object.entries(directory.children).sort((a, b) =>
+        (a[1].type === b[1].type ? 0 : a[1].type === "dir" ? -1 : 1) || a[0].localeCompare(b[0])
+      );
+      if (!entries.length) {
+        const empty = document.createElement("p");
+        empty.className = "muted small"; empty.textContent = "This folder is empty.";
+        list.append(empty); return;
+      }
+      for (const [name, item] of entries) {
+        const row = document.createElement("button");
+        row.className = "file-row";
+        const icon = document.createElement("span"); icon.textContent = item.type === "dir" ? "▰" : "▤";
+        const label = document.createElement("span"); label.className = "file-name"; label.textContent = name;
+        const type = document.createElement("small"); type.textContent = item.type;
+        row.append(icon, label, type);
+        row.addEventListener("click", () => {
+          if (item.type === "dir") { cwd = normalizePath(name); renderFiles(); }
+          else {
+            const content = item.content || "(empty file)";
+            printToTerminal(`--- ${name} ---\n${content}`);
+            WindowManager.open("terminal");
+          }
+        });
+        list.append(row);
+      }
+    }
+    $("#fileUp").addEventListener("click", () => { cwd = normalizePath(".."); renderFiles(); });
+    function createEntry(type) {
+      const name = prompt(`Name for new ${type}:`);
+      if (!name) return;
+      if (name.includes("/") || name === "." || name === "..") { alert("Use a simple name without slashes."); return; }
+      const dir = nodeAt(cwd);
+      if (!dir || dir.children[name]) { alert("That name already exists."); return; }
+      dir.children[name] = type === "dir" ? { type: "dir", children: {} } : { type: "file", content: "" };
+      saveFS(); renderFiles(); Kernel.log(`created ${type}: ${name}`);
+    }
+    $("#newFolder").addEventListener("click", () => createEntry("dir"));
+    $("#newFile").addEventListener("click", () => createEntry("file"));
 
-  else if(e.key === "ArrowDown"){
-    historyIndex = Math.min(history.length, historyIndex + 1);
-    termInput.value = history[historyIndex] || "";
-  }
-});
+    const termOutput = $("#termOutput");
+    const termInput = $("#termInput");
+    const commandHistory = [];
+    let historyIndex = 0;
+    function printToTerminal(message = "", className = "") {
+      const line = document.createElement("div");
+      line.className = `term-line ${className}`.trim();
+      line.textContent = String(message);
+      termOutput.append(line);
+      termOutput.scrollTop = termOutput.scrollHeight;
+    }
+    function splitArgs(text) {
+      return text.match(/"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|[^\s]+/g)?.map(value => value.replace(/^["']|["']$/g, "")) || [];
+    }
+    function terminalCommand(raw) {
+      const trimmed = raw.trim();
+      if (!trimmed) return;
+      const [command, ...args] = splitArgs(trimmed);
+      const rest = args.join(" ");
+      switch (command) {
+        case "help":
+          printToTerminal("help  clear  echo  time  pwd  ls  cd  mkdir  touch  cat  write  calc  wallpaper");
+          printToTerminal("Virtual filesystem only. This terminal cannot run real system commands.");
+          break;
+        case "clear": termOutput.replaceChildren(); break;
+        case "echo": printToTerminal(rest); break;
+        case "time": printToTerminal(new Date().toString()); break;
+        case "pwd": printToTerminal(cwd); break;
+        case "wallpaper": WindowManager.open("settings"); break;
+        case "ls": {
+          const target = nodeAt(args[0] || ".");
+          if (!target || target.type !== "dir") printToTerminal("ls: directory not found", "error");
+          else printToTerminal(Object.keys(target.children).join("    ") || "(empty)");
+          break;
+        }
+        case "cd": {
+          const path = normalizePath(args[0] || "/home");
+          const target = nodeAt(path);
+          if (!target || target.type !== "dir") printToTerminal("cd: directory not found", "error");
+          else cwd = path;
+          break;
+        }
+        case "mkdir":
+        case "touch": {
+          if (!args[0]) { printToTerminal(`${command}: name required`, "error"); break; }
+          const path = normalizePath(args[0]);
+          const bits = path.split("/").filter(Boolean);
+          const name = bits.pop();
+          const parent = nodeAt("/" + bits.join("/"));
+          if (!parent || parent.type !== "dir" || parent.children[name]) {
+            printToTerminal(`${command}: invalid path or name already exists`, "error"); break;
+          }
+          parent.children[name] = command === "mkdir" ? { type: "dir", children: {} } : { type: "file", content: "" };
+          saveFS(); printToTerminal(`created ${name}`); break;
+        }
+        case "cat": {
+          const file = nodeAt(args[0] || "");
+          if (!file || file.type !== "file") printToTerminal("cat: file not found", "error");
+          else printToTerminal(file.content || "(empty file)");
+          break;
+        }
+        case "write": {
+          if (args.length < 2) { printToTerminal('usage: write "file" "text"', "error"); break; }
+          const file = nodeAt(args[0]);
+          if (!file || file.type !== "file") printToTerminal("write: file not found", "error");
+          else { file.content = args.slice(1).join(" "); saveFS(); printToTerminal("file updated"); }
+          break;
+        }
+        case "calc": {
+          const expression = args.join("");
+          if (!expression || !/^[\d+\-*/().%\s]+$/.test(expression)) {
+            printToTerminal("calc: enter a basic arithmetic expression", "error"); break;
+          }
+          try {
+            const result = Function(`"use strict"; return (${expression})`)();
+            printToTerminal(Number.isFinite(result) ? result : "result is not finite");
+          } catch { printToTerminal("calc: invalid expression", "error"); }
+          break;
+        }
+        default: printToTerminal(`${command}: command not found. Type 'help'.`, "error");
+      }
+    }
+    termInput.addEventListener("keydown", event => {
+      if (event.key === "Enter") {
+        const value = termInput.value;
+        if (!value.trim()) return;
+        printToTerminal(`${cwd} $ ${value}`, "command");
+        commandHistory.push(value); historyIndex = commandHistory.length;
+        terminalCommand(value); termInput.value = "";
+      } else if (event.key === "ArrowUp") {
+        event.preventDefault(); historyIndex = Math.max(0, historyIndex - 1);
+        termInput.value = commandHistory[historyIndex] || "";
+      } else if (event.key === "ArrowDown") {
+        event.preventDefault(); historyIndex = Math.min(commandHistory.length, historyIndex + 1);
+        termInput.value = commandHistory[historyIndex] || "";
+      }
+    });
 
-/* boot text */
-print("EESA OS terminal v3 loaded");
-print("type help to unlock system");
+    let noteData = { title: "", text: "" };
+    try { noteData = JSON.parse(localStorage.getItem(STORAGE.notes) || '{"title":"","text":""}'); } catch {}
+    $("#noteTitle").value = noteData.title || "";
+    $("#noteText").value = noteData.text || "";
+    let noteSaveTimeout;
+    function saveNote() {
+      clearTimeout(noteSaveTimeout);
+      $("#noteStatus").textContent = "Saving...";
+      noteSaveTimeout = setTimeout(() => {
+        try {
+          localStorage.setItem(STORAGE.notes, JSON.stringify({
+            title: $("#noteTitle").value, text: $("#noteText").value
+          }));
+          $("#noteStatus").textContent = "Saved locally";
+        } catch { $("#noteStatus").textContent = "Could not save"; }
+      }, 250);
+    }
+    $("#noteTitle").addEventListener("input", saveNote);
+    $("#noteText").addEventListener("input", saveNote);
+    $("#clearNote").addEventListener("click", () => {
+      if (!confirm("Clear this note?")) return;
+      $("#noteTitle").value = ""; $("#noteText").value = ""; saveNote();
+    });
 
+    // SETTINGS: ACCENT AND WALLPAPER
+    function setAccent(color, persist = true) {
+      document.documentElement.style.setProperty("--accent", color);
+      document.documentElement.style.setProperty("--accent-soft", `${color}26`);
+      if (persist) localStorage.setItem(STORAGE.accent, color);
+    }
+    $("#accentSwatches").addEventListener("click", event => {
+      const button = event.target.closest("[data-color]");
+      if (button) { setAccent(button.dataset.color); Kernel.log("accent color changed"); }
+    });
+    try {
+      const accent = localStorage.getItem(STORAGE.accent);
+      if (accent && /^#[0-9a-f]{6}$/i.test(accent)) setAccent(accent, false);
+    } catch {}
 
-</script>
+    const wallpaperLayer = $("#wallpaperLayer");
+    const wallpaperPreview = $("#wallpaperPreview");
+    function applyWallpaper(dataUrl, persist = true) {
+      const image = new Image();
+      image.onload = () => {
+        wallpaperLayer.style.backgroundImage = `url("${dataUrl}")`;
+        wallpaperPreview.style.backgroundImage = `url("${dataUrl}")`;
+        if (persist) {
+          try { localStorage.setItem(STORAGE.wallpaper, dataUrl); }
+          catch { Kernel.log("wallpaper too large to save; applied for this session"); }
+        }
+        Kernel.log("wallpaper applied");
+      };
+      image.onerror = () => Kernel.log("could not load wallpaper");
+      image.src = dataUrl;
+    }
+    function readWallpaper(file) {
+      if (!file || !file.type.startsWith("image/")) return;
+      const reader = new FileReader();
+      reader.onload = () => applyWallpaper(reader.result);
+      reader.onerror = () => Kernel.log("could not read image");
+      reader.readAsDataURL(file);
+    }
+    $("#pickWallpaper").addEventListener("click", () => $("#wallpaperInput").click());
+    $("#wallpaperInput").addEventListener("change", event => {
+      readWallpaper(event.target.files[0]); event.target.value = "";
+    });
+    $("#resetWallpaper").addEventListener("click", () => {
+      localStorage.removeItem(STORAGE.wallpaper);
+      wallpaperLayer.style.backgroundImage = "";
+      wallpaperPreview.style.backgroundImage = "";
+      Kernel.log("wallpaper reset");
+    });
+    document.addEventListener("dragover", event => {
+      if ([...event.dataTransfer.types].includes("Files")) event.preventDefault();
+    });
+    document.addEventListener("drop", event => {
+      if (![...event.dataTransfer.types].includes("Files")) return;
+      event.preventDefault(); readWallpaper(event.dataTransfer.files[0]);
+    });
+    try {
+      const savedWallpaper = localStorage.getItem(STORAGE.wallpaper);
+      if (savedWallpaper) applyWallpaper(savedWallpaper, false);
+    } catch {}
 
+    const audio = $("#audioElement");
+    let audioUrl = null;
+    $("#audioPicker").addEventListener("change", event => {
+      const file = event.target.files[0];
+      if (!file) return;
+      if (audioUrl) URL.revokeObjectURL(audioUrl);
+      audioUrl = URL.createObjectURL(file);
+      audio.src = audioUrl;
+      $("#trackName").textContent = file.name;
+      audio.load();
+      $("#playPause").textContent = "▶ Play";
+    });
+    $("#playPause").addEventListener("click", async () => {
+      if (!audio.src) { $("#trackName").textContent = "Choose an audio file first"; return; }
+      if (audio.paused) {
+        try { await audio.play(); $("#playPause").textContent = "Ⅱ Pause"; }
+        catch { $("#trackName").textContent = "Playback could not start"; }
+      } else { audio.pause(); $("#playPause").textContent = "▶ Play"; }
+    });
+    $("#stopAudio").addEventListener("click", () => {
+      audio.pause(); audio.currentTime = 0; $("#playPause").textContent = "▶ Play";
+    });
+    audio.addEventListener("timeupdate", () => {
+      const duration = Number.isFinite(audio.duration) ? audio.duration : 0;
+      $("#audioProgress").value = duration ? (audio.currentTime / duration) * 100 : 0;
+      const fmt = seconds => `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(Math.floor(seconds % 60)).padStart(2, "0")}`;
+      $("#trackTime").textContent = `${fmt(audio.currentTime)} / ${fmt(duration)}`;
+    });
+    $("#audioProgress").addEventListener("input", event => {
+      if (Number.isFinite(audio.duration)) audio.currentTime = (Number(event.target.value) / 100) * audio.duration;
+    });
+    audio.addEventListener("ended", () => { $("#playPause").textContent = "▶ Play"; });
+
+    function boot() {
+      const steps = ["Initializing kernel...", "Mounting virtual filesystem...", "Loading desktop...", "Starting EESA OS..."];
+      let index = 0;
+      const label = $("#bootText");
+      const next = () => {
+        if (index < steps.length) {
+          label.textContent = steps[index++];
+          setTimeout(next, 430);
+        } else {
+          setTimeout(() => $("#boot").classList.add("done"), 300);
+          Kernel.log("desktop ready");
+        }
+      };
+      next();
+    }
+
+    printToTerminal("EESA OS terminal");
+    printToTerminal("Type 'help' to explore the simulated system.");
+    Kernel.log("kernel initialized");
+    Kernel.log("virtual filesystem mounted");
+    Kernel.log("desktop environment loaded");
+    boot();
+
+    window.addEventListener("beforeunload", () => {
+      if (audioUrl) URL.revokeObjectURL(audioUrl);
+    });
+  </script>
 </body>
 </html>
